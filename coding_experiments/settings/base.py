@@ -13,6 +13,9 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
+SITE_NAME = os.path.basename(BASE_DIR)
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
@@ -22,21 +25,12 @@ SECRET_KEY = '!_ql35_qztb58!sphg58*em80#^)fanbrqnwvjnc8wewr=vbvs'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = []
 
 
-# Application definition
 
-INSTALLED_APPS = (
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-)
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -81,3 +75,68 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+)
+
+
+
+# Application definition
+DEFAULT_APPS = (
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+)
+
+THIRD_PARTY_APPS = (
+    'rest_framework',
+    'rest_framework.authtoken',
+)
+
+LOCAL_APPS = (
+
+)
+
+
+INSTALLED_APPS = DEFAULT_APPS + THIRD_PARTY_APPS + LOCAL_APPS 
+
+
+###################################
+# Rest Framework
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
+    'PAGINATE_BY': 10,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    )
+}
+
+
+
+
+###################################
+# DEBUG TOOLBAR
+
+INSTALLED_APPS += ('debug_toolbar', )
+
+MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
+    'SHOW_TOOLBAR_CALLBACK': '%s.settings.base.custom_show_toolbar' % SITE_NAME,
+    'HIDE_DJANGO_SQL': True,
+    'TAG': 'body',
+    'SHOW_TEMPLATE_CONTEXT': True,
+    'ENABLE_STACKTRACES': True,
+}
+
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
+

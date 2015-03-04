@@ -53,3 +53,7 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Django local settings
+coding_experiments/settings/local.py
+
