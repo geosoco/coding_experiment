@@ -54,6 +54,10 @@ docs/_build/
 # PyBuilder
 target/
 
+node_modules/
+static/bower_components/
+main/fixtures/
+
 # Django local settings
 coding_experiments/settings/local.py
 
