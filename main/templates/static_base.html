@@ -1,0 +1,38 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html {% block html_attrs %}{% endblock %}>
+<head>
+	<link rel="stylesheet" type="text/css" href="{% static "bower_components/bootstrap/dist/css/bootstrap.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "css/main.css" %}">
+	<style>
+	{% block head_style %}{% endblock %}
+	</style>
+</head>
+
+<body {% block body_attrs %}{% endblock %}>
+{% block outer_content %}
+	<div class="container">
+		<div class="content" >
+			{% block content %}
+			{% endblock %}
+		</div>
+	</div>
+{% endblock %}
+
+
+
+{% block core_script_includes %}
+<script src="{% static "bower_components/jquery/dist/jquery.min.js" %}"></script>
+<script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
+{% endblock %}
+
+{% block script_includes %}
+{% endblock %}
+
+<script>
+{% block final_script %}{% endblock %}
+</script>
+
+</body>
+</html>

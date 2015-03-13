@@ -1,0 +1,79 @@
+{% extends "static_base.html" %}
+{% load staticfiles %}
+
+{% block head_style %}
+	body { background: #abc; }
+	.content { background: #fff; color: #333; margin: 20px; padding: 40px; border-radius: 8px;}
+	form { margin-top: 50px;}
+{% endblock %}
+
+{% block content %}
+			<div class="row">
+				<div class="col-md-12">
+					<h1>Labelling Experiment</h1>
+
+					<h2>Requirements</h2>
+					<ul>
+						<li>Keyboard</li>
+						<li>Modern Web Browser such as:
+							<ul>
+								<li>Chrome 33+</li>
+								<li>Firefox 10+</li>
+								<li>Safari 6.1.6+</li>
+								<li>Internet Explorer 10+</li>
+							</ul>
+						</li>
+					</ul>
+
+					<h2>Purpose</h2>
+
+					<p>The purpose of this experiment is to explore methods for improving labelling experiences and the quality of those labels. You will be asked to label 20 tweets from a recent event (The &quot;Sydney Siege&quot;). This should take about 5-10 minutes. . </p>
+					<p>All of the tweets are publicly available as of the time the experiment was posted. </p>
+				</div>
+			</div>
+
+			<div class="row">
+				<form action="." method="post" class="form">
+					{% csrf_token %}
+					<input type="hidden" value="" name="browser_info">
+					<button type="submit" class="btn btn-primary">Proceed</button>
+				</form>
+			</div>
+
+			<div class="row">
+				<pre>
+					{{browser_info}}
+				</pre>
+			</div>
+{% endblock %}
+
+{% block final_script %}
+(function(){
+	
+	
+	$("button[type='submit']").on("click", function(ev){
+		var $f = $('form'),
+			ns = {
+				'ua': navigator.userAgent, 
+				'vndr': navigator.vendor,
+				'pltfrm': navigator.platform,
+				'loc':navigator.language,
+				'wdth': $(window).width(),
+				'hght': $(window).height()
+			},
+			stats = $.extend(ns, window.screen)
+			$i = $('<input/>', {
+				type: 'hidden',
+				name: 'browser_info',
+				value: JSON.stringify(stats)
+			});
+
+		$f.append($i);
+
+		ev.preventDefault();
+		$f.submit();
+	});
+
+})();
+
+{% endblock %}

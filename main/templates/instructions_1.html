@@ -1,0 +1,43 @@
+{% extends "static_base.html" %}
+{% load staticfiles %}
+
+{% block head_style %}
+	body { background: #abc; }
+	.content { background: #fff; color: #333; margin: 20px; padding: 40px; border-radius: 8px;}
+	form { margin-top: 50px;}
+{% endblock %}
+
+{% block content %}
+			<div class="row">
+				<div class="col-md-12">
+					<h1>Phase 2 Instructions</h1>
+					<p>You will be applying labels to 20 tweets about a rumor from the recent "Sydney Siege" hostage situation. You will be applying two sets of codes that define different properties about this event. You will now apply combinations of 3 different labels to each of the tweets.	
+					</p>
+
+
+
+					<h2>Navigating Tweets</h2>
+					<p>Press the up <span class="keyboard-btn">&uarr;</span> and down <span class="keyboard-btn">&darr;</span> buttons to navigate to the previous and next tweet respectively. </p>
+
+					<h2>Applying Labels</h2>
+					<p>To apply / remove labels, you can use the keyboard keys <span class="keyboard-btn">4</span> through <span class="keyboard-btn">{% if condition == 0 or condition == 1 %}6{% else %}3{% endif %}</span>. Press the button once to add the code and a second time if you want remove it. </p>
+
+					<p>
+					The second set of codes describes various properties about the tweet. These may or may not be present in the tweet, and can occur in any combination. In other words, the tweet may not exhibit any of these properties, others may exhibit some combination, and some may exhibit all of them.
+					<ul>
+						<li><span class="label label-default">Uncertainty</span></li>
+						<li><span class="label label-default">Ambiguous</span></li>
+						<li><span class="label label-default">Implicit</span></li> 
+					</ul>
+					For this set, the codes can be applied in any combination. Some tweets will use none of them, some may use one or two of them, and some may use all of them.</p>
+
+				</div>
+			</div>
+
+			<div class="row" style="margin-top: 50px">
+				<a href="{{next}}" class="btn btn-primary pull-right">Next</a>
+			</div>
+{% endblock %}
+
+{% block final_script %}
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "static_base.html" %}
+{% load staticfiles %}
+
+{% block head_style %}
+	body { background: #abc; }
+	.content { background: #fff; color: #333; margin: 20px; padding: 40px; border-radius: 8px;}
+	form { margin-top: 50px;}
+{% endblock %}
+
+{% block content %}
+			<div class="row">
+				<div class="col-md-12">
+					<h1>Thank you!</h1>
+
+					<p>Please copy and paste the code below onto the mechnical turk page</p>
+
+					<p>Code: {{completion_code}}
+
+{% endblock %}
+
+{% block final_script %}
+(function(){
+	var ns = {
+			'ua': navigator.userAgent, 
+			'vndr': navigator.vendor,
+			'pltfrm': navigator.platform,
+			'loc':navigator.language,
+			'wdth': $(window).width(),
+			'hght': $(window).height()
+		},
+		stats = $.extend(ns, window.screen);
+
+	$.get("/api/turkuser/{{turkuser_id}}/.json", function(data) {
+		console.dir(data);
+		delete data.user;
+		data.final_browser_details = JSON.stringify(stats);
+		$.ajax({
+			method: "PUT", 
+			url: "/api/turkuser/{{turkuser_id}}/.json", 
+			"data": data, 
+			"success": function(data2) {
+				console.log("put data");
+			}
+		});
+	});
+
+})();
+
+{% endblock %}

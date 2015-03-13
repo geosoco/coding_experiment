@@ -1,0 +1,14 @@
+{
+  "name": "coding-experiments",
+  "description": "Some coding experiments for emCOMP",
+  "version": "0.0.1",
+  "homepage": "https://github.com/geosoco/",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "angular": "~1.3.14",
+    "bootstrap": "~3.3.2",
+    "angular-route": "~1.3.14",
+    "angular-resource": "~1.3.0"
+  }
+}

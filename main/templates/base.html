@@ -1,0 +1,151 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html ng-app="{% block ng_app %}tweetCodingApp{% endblock %}">
+<head>
+	<link rel="stylesheet" type="text/css" href="{% static "bower_components/bootstrap/dist/css/bootstrap.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "css/main.css" %}">
+
+	<style>
+	body { background: #abc;}
+	ul.styleless { list-style-type: none; padding-left: 0;}
+	ul.styleless li { padding-left: 0; }
+	.item-row { background: #e8e8e8; margin: 10px 0; color: #666; border: 10px solid transparent; border-radius: 4px; min-height:150px; padding-top:20px; padding-bottom: 20px;}
+	.item-row.selected { background: #fff; color: #333; border-color: #fc0;}
+	.code.label { font-size: 14px; height: 25px;}
+
+	.tweet-list { margin-top: 50px; font-size: 16px;}
+
+	.code-list-primary li, .code-list-secondary li { display: inline-block; margin-left: 10px;}
+	.code-list-primary, .code-list-secondary {  line-height: 35px; height: 35px; }
+	.code.label .close-btn { margin-left: 20px; border-radius: 16px; border: 2px solid; padding: 0 4px;}
+	.code.label .close-btn span { margin: 0 1px;}
+	.code.label a.close-btn { background-color: #eee; color: #888; opacity: 0.8; }
+	.code.label:hover a.close-btn, a.close-btn:active, a.close-btn:focus { text-decoration: none; background-color: #fff; color: #000; opacity:1; }
+
+	header { 
+		background: #fff; 
+		z-index: 1000;
+		top: 0;
+		left: 0;
+		width: 100%;	
+		height: 50px; 	
+		border-bottom: 1px solid #888; 
+	}
+	header.fixed { 
+		position: fixed; 
+	}
+
+	header.drop-shadow {
+		box-shadow: 0px 0px 8px #666;		
+	}
+
+	.code-bar { background: #fff; color: #333; padding-top: 12px; overflow: visible;}
+	.code-bar li { display: block; float: left; margin-left: 20px; height: 32px; }
+	.code-bar a { display: inline-block; height: 100%; padding-top: 2px;}
+	.code-bar a, .code-bar a:hover, .code-bar a:active, .code-bar a:focus { text-decoration: none; }
+	.code-bar .schema-0 { height: 100%; }
+
+	.code-navbar { height: 100%;}
+	.code-bar-schema-block { height: 100%; float:left;}
+
+	#main-content { padding-top: 50px; height: 100%; -webkit-box-sizing: border-box; box-sizing: border-box; }
+
+	.selection-status {   line-height: 50px; margin-right: 20px; }
+	.help { line-height: 50px;}
+	</style>
+</head>
+
+<body ng-controller="{% block ng_controller %}TweetListCtrl{% endblock %}" data-page="{{page}}">
+{% block outer_content %}
+	<header class="fixed drop-shadow">
+		<div class="container">
+			<div class="row">
+				<div class="code-navbar col-md-8" ng-controller="TweetCodeNavBar" ng-include="'tpl-code-button.html'">
+				</div>
+				{% verbatim %}
+				<div class="help pull-right">
+					<a href="#" class="btn btn-default" ng-click="help">Help</a>
+				</div>				
+				<div class="selection-status pull-right">
+					<span class="ng-hide" ng-show="tweets.length > 0">Code {{selected+1}} of {{tweets.length}}</span>
+				</div>
+				{% endverbatim %}
+			</div>
+		</div>
+	</header>
+
+	<div class="container" id="main-content">
+
+		<div class="content" >
+			
+
+
+			<ul class="styleless tweet-list ng-hide" ng-show="tweets && tweets.length > 0" >
+				{% verbatim %}
+				<li id="tweet-{{tweet.id}}" class="row item-row ng-hide" ng-repeat="tweet in tweets" ng-include="'tpl-tweet-code.html'" ng-class="{'selected': selected==$index}" ng-click="itemClicked($index)" ng-show="!oneTweet() || selected==$index">{{selected}}
+				</li>
+				{% endverbatim %}
+				<li class="row item-row next-row" >
+					<a class="btn btn-primary pull-right" href="{{next}}" ng-class="{'disabled': !incomplete() }">Submit</a>
+				</li>
+			</ul>
+
+		</div>
+	</div>
+{% endblock %}
+
+{% verbatim %}
+<script type="text/ng-template" id="tpl-tweet-code.html">
+	<div class="col-md-5 tweet-cntr">
+		<div class="tweet">{{tweet.text}}</div>
+	</div>
+	<div class="col-md-5">
+		<div class="row">
+			<ul class="styleless code-list-primary">
+				<li ng-repeat="code in tweet.codes | filter:codeFilterBySchema0 | orderBy:'code'"><span class="code label label-{{codeLookupById( code.code ).name}}">{{ codeLookupById( code.code ).name }}<a href="#" class="close-btn" ng-click="onRemoveCodeClicked($event,tweet,code)"><span>&#215;</span></a></li>
+			</ul>
+		</div>
+		<div class="row">
+			<ul class="styleless code-list-secondary">
+				<li ng-repeat="code in tweet.codes | filter:codeFilterBySchema1 | orderBy:'code'"><span class="code label label-{{codeLookupById( code.code ).name}}">{{ codeLookupById( code.code ).name }}<a href="#" class="close-btn" ng-click="onRemoveCodeClicked($event,tweet,code)"><span>&#215;</span></a></li>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="col-md-2 ng-hide" ng-show="selected == $index">
+		<div><a href="#" ng-click="movePrev($event)" class="btn btn-default" ng-class="{disabled: $index <= 0 }" data-toggle="tooltip" data-placement="left" aria-label="Previous Item" title="Previous Item"><span class="glyphicon glyphicon-chevron-up"></span></a></div>
+		<div><a href="#" ng-click="moveNext($event)" class="btn btn-default" ng-class="{disabled: $index >= (tweets.length-1) }" data-toggle="tooltip" data-placement="left" aria-label="Next Item" title="Next Item"><span class="glyphicon glyphicon-chevron-down"></span></a></div>
+	</div>
+</script>
+<script type="text/ng-template" id="tpl-code-button.html">
+					<div class="code-bar-schema-block schema-0 ng-hide" ng-show="schema0_visible">
+						<ul class="styleless code-bar" ng-hide="!codes" >
+							<li ng-repeat="code in codes | filter:{schema:0}" >
+								<a href="#" ng-click="toggleCode(tweets[selected], code.id)"><span class="keyboard-btn">{{code.id}}</span><span class="code label label-{{code.name}}">{{code.name}}</span></a>
+							</li>
+						</ul>
+					</div>
+					<div class="code-bar-schema-block schema-1 ng-hide" ng-show="schema1_visible">
+						<ul class="styleless code-bar" ng-hide="!codes" >
+							<li ng-repeat="code in codes | filter:{schema:1}" >
+								<a href="#" ng-click="toggleCode(tweets[selected], code.id)"><span class="keyboard-btn">{{code.id}}</span><span class="code label label-{{code.name}}">{{code.name}}</span></a>
+							</li>						
+						</ul>
+					</div>					
+</script>
+
+{% endverbatim %}
+
+<script src="{% static "bower_components/jquery/dist/jquery.min.js" %}"></script>
+<script src="{% static "bower_components/angular/angular.js" %}"></script>
+<script src="{% static "bower_components/angular-route/angular-route.js" %}"></script>
+<script src="{% static "bower_components/angular-cookies/angular-cookies.js" %}"></script>
+<script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
+<script src="{% static "js/controllers.js" %}"></script>
+<script src="{% static "js/services.js" %}"></script>
+<script src="{% static "js/main.js" %}"></script>
+
+
+</body>
+</html>

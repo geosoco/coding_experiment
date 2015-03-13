@@ -1,0 +1,15 @@
+.keyboard-btn {
+	border: 2px solid #ccc;
+	border-radius: 4px;
+	padding: 2px 4px;
+	box-shadow: 2px 2px 3px #666;
+	margin-right: 5px;
+}
+
+.label-Affirm { background: #f75; color: #fff; }
+.label-Neutral { background: #888; color: #fff; }
+.label-Deny { background: #06c; color: #fff;}
+
+.label-Uncertainty { background: #fad; color: #000;}
+.label-Ambiguity { background: #afd; color: #000;}
+.label-Implicit { background: #adf; color: #000;}
