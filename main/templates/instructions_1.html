@@ -1,13 +1,7 @@
-{% extends "static_base.html" %}
+{% extends "instruction_base.html" %}
 {% load staticfiles %}
 
-{% block head_style %}
-	body { background: #abc; }
-	.content { background: #fff; color: #333; margin: 20px; padding: 40px; border-radius: 8px;}
-	form { margin-top: 50px;}
-{% endblock %}
-
-{% block content %}
+{% block help_content %}
 			<div class="row">
 				<div class="col-md-12">
 					<h1>Phase 2 Instructions</h1>
@@ -15,29 +9,72 @@
 					</p>
 
 
+					<h2>Rumor</h2>
+					<p>This rumor is that a flag held in a window was an ISIS flag. Thus, any tweet that suggests the flag was an ISIS flag would be an <span class="label label-default label-Affirm">Affirm</span> label. Any flag that questions or denies that it was an ISIS flag would be a <span class="label label-default label-Deny">Deny</span> label.
+
+
 
 					<h2>Navigating Tweets</h2>
-					<p>Press the up <span class="keyboard-btn">&uarr;</span> and down <span class="keyboard-btn">&darr;</span> buttons to navigate to the previous and next tweet respectively. </p>
+					<div class="row">
+						<div class="col-md-5">
+							<h4>Keyboard</h4>
+							<p>You can navigate between tweets using the keyboard arrow keys</p>
+							<p><span class="keyboard-btn">&uarr;</span> - Previous Tweet</p>
+							<p><span class="keyboard-btn">&darr;</span> - Next Tweet</p>
+						</div>
+						<div class="col-md-5 col-md-offset-1">
+							<h4>Mouse</h4>
+							<p>Two buttons can be found to the right of the tweet to navigate to the previous and next tweet.</p>
+							<p><a href="#" class="btn btn-default" data-toggle="tooltip" data-placement="left" aria-label="Previous Item" title="Previous Item"><span class="glyphicon glyphicon-chevron-up"></span></a> - Previous Tweet</p>
+							<p><a href="#" class="btn btn-default" data-toggle="tooltip" data-placement="left" aria-label="Next Item" title="Next Item"><span class="glyphicon glyphicon-chevron-down"></span></a> - Next Tweet</p>
+						</div>
+					</div>
+
 
 					<h2>Applying Labels</h2>
 					<p>To apply / remove labels, you can use the keyboard keys <span class="keyboard-btn">4</span> through <span class="keyboard-btn">{% if condition == 0 or condition == 1 %}6{% else %}3{% endif %}</span>. Press the button once to add the code and a second time if you want remove it. </p>
 
 					<p>
 					The second set of codes describes various properties about the tweet. These may or may not be present in the tweet, and can occur in any combination. In other words, the tweet may not exhibit any of these properties, others may exhibit some combination, and some may exhibit all of them.
-					<ul>
-						<li><span class="label label-default">Uncertainty</span></li>
-						<li><span class="label label-default">Ambiguous</span></li>
-						<li><span class="label label-default">Implicit</span></li> 
-					</ul>
-					For this set, the codes can be applied in any combination. Some tweets will use none of them, some may use one or two of them, and some may use all of them.</p>
+
+						<table class="table" style="margin: 20px;">
+							<thead>
+								<tr>
+									<th>Code</th>
+									<th>Keyboard</th>
+									<th>Definition</th>
+									<th>Example</th>
+								</tr>						
+							</thead>
+							<tbody>
+
+								<tr>
+									<td><span class="label label-Implicit">Implicit</span></td>
+									<td><span class="keyboard-btn">4</span></td>
+									<td>This tweet does not explicitly address the story, however it still affirms or denies information implicitly. In other words, the person affirms (or denies) the story without exactly spelling it out. Sarcasm is often implicit. Referencing a story can be an implicit affirmation.</td>
+									
+									<td>RT @KatyJ: This is the smartest terrorist. #SydneySiege</td>
+								</tr>							
+								<tr>
+									<td><span class="label label-Ambiguity">Ambiguity</span></td>
+									<td><span class="keyboard-btn">5</span></td>
+									<td>Regarding the content of the tweet, there is some ambiguity as to whether this tweet affirms or denies the rumor. In other words, it’s not 100% clear to the reader (from the way the tweet is communicated) whether this affirms or denies the rumor. This code refers to a relationship between you and the tweet - whether the reader can interpret the tweet with 100% certainty.
+	</td>
+									<td>Here's the ISIS logo for comparison: (missing image)</td>
+								</tr>
+								<tr>
+									<td><span class="label label-Uncertainty">Uncertainty</span></td>
+									<td><span class="keyboard-btn">6</span></td>
+									<td>This tweet expresses some level of uncertainty about the story. This refers to a property of the tweet itself, not your uncertainty. In other words, the tweet suggests that the veracity of the story is not 100% resolved. (This code refers to a relationship between the tweet’s author and the rumor/story - i.e. the tweet author expresses uncertainty in the tweet). [Not me, them]
+									</td>								
+									<td>I can't tell if that's an ISIS flag or not. #Sydney</td>
+								</tr>
+							</tbody>
+						</table>
+					</p>
 
 				</div>
 			</div>
 
-			<div class="row" style="margin-top: 50px">
-				<a href="{{next}}" class="btn btn-primary pull-right">Next</a>
-			</div>
 {% endblock %}
 
-{% block final_script %}
-{% endblock %}

@@ -92,7 +92,7 @@ tweetCodingApp.controller('TweetListCtrl',
 				tweets[i].codes = [];
 				for(j = 0; j < instances.length; j++) {
 					if(instances[j].tweet == tweets[i].id && instances[j].deleted == false) {
-						tweets[j].codes.push(instances[j]);
+						tweets[i].codes.push(instances[j]);
 					}
 				}
 			}

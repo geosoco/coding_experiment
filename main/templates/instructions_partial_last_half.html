@@ -1,13 +1,9 @@
-{% extends "instruction_base.html" %}
-{% load staticfiles %}
-
-
-{% block help_content %}
 			<div class="row">
 				<div class="col-md-12">
-					<h1>Instructions</h1>
-					<p>You will be applying labels to 20 tweets about a rumor from the recent "Sydney Siege" hostage situation. You will be applying two sets of codes that define different properties about this event. You will apply combinations of 6 different labels to each of the tweets. {% if condition == 2 or condition == 3 %}You will do this in two phases. {% endif %}					
+					<h1>Phase 2 Instructions</h1>
+					<p>You will be applying labels to 20 tweets about a rumor from the recent "Sydney Siege" hostage situation. You will be applying two sets of codes that define different properties about this event. You will now apply combinations of 3 different labels to each of the tweets.	
 					</p>
+
 
 					<h2>Rumor</h2>
 					<p>This rumor is that a flag held in a window was an ISIS flag. Thus, any tweet that suggests the flag was an ISIS flag would be an <span class="label label-default label-Affirm">Affirm</span> label. Any flag that questions or denies that it was an ISIS flag would be a <span class="label label-default label-Deny">Deny</span> label.
@@ -30,45 +26,10 @@
 						</div>
 					</div>
 
+
 					<h2>Applying Labels</h2>
-					<p>To apply / remove labels, you can use the keyboard keys <span class="keyboard-btn">1</span> through <span class="keyboard-btn">{% if condition == 0 or condition == 1 %}6{% else %}3{% endif %}</span>. Press the button once to add the code and a second time if you want remove it. </p>
+					<p>To apply / remove labels, you can use the keyboard keys <span class="keyboard-btn">4</span> through <span class="keyboard-btn">{% if condition == 0 or condition == 1 %}6{% else %}3{% endif %}</span>. Press the button once to add the code and a second time if you want remove it. </p>
 
-					<p>You will be applying two sets of labels. These must be applied differently. The first set of codes describes whether the tweet affirms or denies the rumor. <strong>Only one of these may be applied at a time</strong>.
-					<table class="table" style="margin: 40px 10px;">
-						<thead>
-							<tr>
-								<th>Code</th>
-								<th>Keyboard</th>
-								<th>Definition</th>
-								<th>Example</th>
-							</tr>						
-						</thead>
-						<tbody>
-
-							<tr>
-								<td><span class="label label-default label-Affirm">Affirm</span></td>
-								<td><span class="keyboard-btn">1</span></td>
-								<td>This tweet affirms, supports, and functions to pass along the story. </td>
-								<td>@KevinZZ Hostages are holding up an ISIS flag in the window. #Sydney #SydneySiege</td>
-							</tr>
-							<tr>
-								<td><span class="label label-default label-Neutral">Neutral</span></td>
-								<td><span class="keyboard-btn">2</span></td>
-								<td>The tweet is exactly neutral (use sparingly). Be careful not to conflate with an implicit affirmation.</td>
-								<td>RT @JillSmith: The hostage are holding up some kind of flag.</td>
-							</tr>
-							<tr>
-								<td><span class="label label-default label-Deny">Deny</span></td>
-								<td><span class="keyboard-btn">2</span></td>
-								<td>This tweet denies all or part of the story.</td>
-								<td>The flag in the window belongs to a different Islamic group. #sydneysiege</td>
-							</tr>
-						</tbody>
-					</table>
-
-					</p>
-
-					{% if condition == 0 or condition == 1 %}
 					<p>
 					The second set of codes describes various properties about the tweet. These may or may not be present in the tweet, and can occur in any combination. In other words, the tweet may not exhibit any of these properties, others may exhibit some combination, and some may exhibit all of them.
 
@@ -107,9 +68,10 @@
 							</tbody>
 						</table>
 					</p>
-					{% endif %}
+
 				</div>
 			</div>
 
-
-{% endblock %}
+			<div class="row" style="margin-top: 50px">
+				<a href="{{next}}" class="btn btn-primary pull-right">Next</a>
+			</div>
