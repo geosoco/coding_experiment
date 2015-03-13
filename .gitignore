@@ -55,7 +55,7 @@ docs/_build/
 target/
 
 node_modules/
-static/bower_components/
+static/bower_components/**
 main/fixtures/
 
 # Django local settings
