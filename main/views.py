@@ -109,6 +109,7 @@ def build_user_cookie(request, user_id = None, username = None, condition = None
 	if turkuser_id is not None:
 		request.session[turkuser_str] = turkuser_id
 
+	print "build_user_cookie: ", repr(c)
 
 	return c
 
@@ -146,12 +147,19 @@ def create_user(request):
 	request.session.flush()
 
 	# log user in
-	#logged_in_user = authenticate(username=username, password=default_password)
-	login(request, user)
+	logged_in_user = authenticate(username=username, password=default_password)
+	if logged_in_user is not None:
+		if logged_in_user.is_active:
+			login(request, logged_in_user)
+		else:
+			print "user not activated"
+	else:
+		print "could not authenticate user"
 
-	c = build_user_cookie(request, user_id = user.id, username=username, condition=condition, turkuser_id = turk_user.id )
+	c = build_user_cookie(request, user_id = logged_in_user.id, username=username, condition=condition, turkuser_id = turk_user.id )
 
-	#print "cookie built"
+	print "cookie built"
+	print c
 
 	return c
 
@@ -171,6 +179,7 @@ def home(request):
 
 def coding(request, page):
 	c = build_user_cookie(request)
+	print "coding---"
 	print request.user.id
 	print request.user.turkuser.id
 	print "authenticated", request.user.is_authenticated()

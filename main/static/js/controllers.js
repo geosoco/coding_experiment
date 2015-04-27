@@ -16,8 +16,8 @@ tweetCodingApp.controller('TweetListCtrlA', function($scope, $sce) {
 
 
 tweetCodingApp.controller('TweetListCtrl', 
-	['$scope', '$document', '$cookies', '$sce', '$http', '$location', '$anchorScroll', '$q',
-	function($scope, $document, $cookies, $sce, $http, $location, $anchorScroll, $q) {
+	['$scope', '$window', '$document', '$cookies', '$sce', '$http', '$location', '$anchorScroll', '$q', 
+	function($scope, $window, $document, $cookies, $sce, $http, $location, $anchorScroll, $q) {
 
 	$scope.codes = [];
 	$scope.selected = 0;
@@ -89,6 +89,7 @@ tweetCodingApp.controller('TweetListCtrl',
 			var instances = data[3].data;
 
 			for(var i = 0; i < tweets.length; i++) {
+				tweets[i].html = $sce.trustAsHtml(tweets[i].embed_code);
 				tweets[i].codes = [];
 				for(j = 0; j < instances.length; j++) {
 					if(instances[j].tweet == tweets[i].id && instances[j].deleted == false) {
@@ -103,11 +104,12 @@ tweetCodingApp.controller('TweetListCtrl',
 			$scope.tweets = tweets;
 
 			//$scope.$apply();
-			$scope.$broadcast("data:loaded");
 
 			$scope.schema0_visible = ($scope.page == 0 || $scope.user.condition == 0 || $scope.user.condition == 1);
 			$scope.schema1_visible = ($scope.page == 1 || ($scope.user.condition == 0 || $scope.user.condition == 1));
 
+
+			$scope.$broadcast("data:loaded");
 		});
 
 
@@ -215,8 +217,11 @@ tweetCodingApp.controller('TweetListCtrl',
 		if(idx >= 0 && idx < $scope.tweets.length ) {
 			$scope.selected = idx;
 
-			$location.hash("tweet-" + idx);
-			$anchorScroll();
+			$location.hash("tweet-" + (idx+1));
+			//console.log("idx: " + idx.toString())
+			//$window.scrollTo(0, $("#tweet-" + (idx+1)).offset().top )
+
+			//$anchorScroll();
 		}
 	}
 
@@ -407,13 +412,14 @@ tweetCodingApp.controller('TweetListCtrl',
 }]);
 
 
-tweetCodingApp.controller('TweetCodeNavBar', ['$scope', 
-function($scope) {
+tweetCodingApp.controller('TweetCodeNavBar', ['$scope', '$document', 
+function($scope, $document) {
 	//$scope.
 
 	$scope.$on('data:loaded', function(event, args) {
 		console.log('data:loaded');
 		console.dir(event);
 		console.dir(args);
+		//$document[0].body.innerHTML += "<script async src=\"//platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>";
 	});
 }]);

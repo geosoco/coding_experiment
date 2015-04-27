@@ -24,7 +24,7 @@ class TurkUser(models.Model):
 
 
 class Tweet(models.Model):
-	id = models.IntegerField(primary_key=True)
+	id = models.AutoField(primary_key=True)
 	tweet_id = models.BigIntegerField(default=None)
 	text = models.CharField(max_length=1024)
 	screen_name = models.CharField(max_length=64)

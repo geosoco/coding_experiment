@@ -17,6 +17,7 @@ ROOT_DIR = os.path.dirname(BASE_DIR)
 SITE_NAME = os.path.basename(BASE_DIR)
 
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
@@ -88,7 +89,8 @@ STATICFILES_DIRS = (
     os.path.join(ROOT_DIR, "main", "static"),
 )
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'assets')
+
+STATIC_ROOT = os.path.join(ROOT_DIR, 'assets')
 
 
 # Application definition

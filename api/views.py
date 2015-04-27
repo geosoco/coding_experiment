@@ -64,8 +64,14 @@ class CodeInstanceViewSet(viewsets.ModelViewSet):
 
 
 	def get_queryset(self):
-		print "getting queryset - %d %s"%(self.request.user.turkuser.id, self.request.user.turkuser.worker_id)
-		return CodeInstance.objects.filter(assignment=self.request.user.turkuser)
+		print "get_queryset"
+		print "user_id", self.request.user.id
+		print "--", repr(self.request.user)
+		if getattr(self.request.user, "turkuser", None) is not None:
+			print "getting queryset - %d %s"%(self.request.user.turkuser.id, self.request.user.turkuser.worker_id)
+			return CodeInstance.objects.filter(assignment=self.request.user.turkuser)
+		else:
+			return CodeInstance.objects.all()
 
 	def create(self, request, *args, **kwargs):
 		if 'tweet' in request.data or 'tweet_str' in request.data:
@@ -82,8 +88,9 @@ class CodeInstanceViewSet(viewsets.ModelViewSet):
 		serializer.save()
 
 	def dispatch(self, request, *args, **kwargs):
-		#print "dispatch"
-		#print repr(kwargs)
+		print "dispatch"
+		print repr(kwargs)
+		print "user id:", request.user.turkuser.pk
 		if kwargs.get('pk') == 'current' and request.user:
 			kwargs['pk'] = request.user.turkuser.pk
 			
