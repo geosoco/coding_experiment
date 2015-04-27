@@ -27,7 +27,7 @@ class TweetSerializer(serializers.HyperlinkedModelSerializer):
 
 	class Meta:
 		model = Tweet
-		fields = ('id', 'tweet_id', 'text', 'screen_name',)
+		fields = ('id', 'tweet_id', 'text', 'screen_name','embed_code')
 		#read_only_fields = ('codeinstances',)
 		# depth = 2
 

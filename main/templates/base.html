@@ -84,7 +84,7 @@
 			
 
 
-			<ul class="styleless tweet-list ng-hide" ng-show="tweets && tweets.length > 0" >
+			<ul class="styleless tweet-list ng-hide ng-cloak" ng-show="tweets && tweets.length > 0" >
 				{% verbatim %}
 				<li id="tweet-{{tweet.id}}" class="row item-row ng-hide" ng-repeat="tweet in tweets" ng-include="'tpl-tweet-code.html'" ng-class="{'selected': selected==$index}" ng-click="itemClicked($index)" ng-show="!oneTweet() || selected==$index">{{selected}}
 				</li>
@@ -93,6 +93,9 @@
 					<a class="btn btn-primary pull-right" href="{{next}}" ng-class="{'disabled': !incomplete() }">Submit</a>
 				</li>
 			</ul>
+			<div ng-switch="tweets && tweets.length > 0">
+				<div ng-switch-when="true"><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script></div>
+			</div>
 
 		</div>
 	</div>
@@ -125,7 +128,7 @@
 {% verbatim %}
 <script type="text/ng-template" id="tpl-tweet-code.html">
 	<div class="col-md-5 tweet-cntr">
-		<div class="tweet">{{tweet.text}}</div>
+		<div class="tweet" ng-bind-html="tweet.html"></div>
 	</div>
 	<div class="col-md-5">
 		<div class="row">
