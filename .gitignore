@@ -57,3 +57,6 @@ target/
 # Django local settings
 coding_experiments/settings/local.py
 
+# bower components
+bower_components
+
