@@ -16,10 +16,11 @@ tweetCodingApp.controller('TweetListCtrlA', function($scope, $sce) {
 
 
 tweetCodingApp.controller('TweetListCtrl', 
-	['$scope', '$document', '$cookies', '$sce', '$http', '$location', '$anchorScroll', '$q',
-	function($scope, $document, $cookies, $sce, $http, $location, $anchorScroll, $q) {
+	['$scope', '$window', '$document', '$cookies', '$sce', '$http', '$location', '$anchorScroll', '$q', 
+	function($scope, $window, $document, $cookies, $sce, $http, $location, $anchorScroll, $q) {
 
 	$scope.codes = [];
+	$scope.code_schemes = [];
 	$scope.selected = 0;
 	$scope.tweets = [];
 	$scope.next = 0;
@@ -38,57 +39,27 @@ tweetCodingApp.controller('TweetListCtrl',
 
 
 	var user_promise = $http.get('/api/turkuser/current/.json');
-	/*
-		.success(function(data){
-			$scope.user = data;
-		})
-		.error(function(data,status,headers,config){
-			console.error("error getting user:" + status);
-		});
-*/
-
-	var codes_promise = $http.get('/api/code/.json');
-	/*
-		.success(function(data){
-			//$scope.codes = data;
-			Array.prototype.push.apply($scope.codes, data);
-			//$scope.$apply();
-		})
-		.error(function(data,status,headers,config){
-			console.log('error getting codes: ' + status)
-		});
-	*/
-
-
-	var tweets_promise = $http.get('/api/tweet/.json');
-	/*
-		.success(function(data){
-			for(var i = 0; i < data.length; i++) {
-				data[i].codes = [];
-			}
-
-			$scope.tweets = data;
-		})
-		.error(function(data, status, headers, config){
-			console.error("error getting tweets: " + status);
-		});
-	*/
-
+	var codes_promise = $http.get('/api/codescheme/.json');
+	//var tweets_promise = $http.get('/api/tweet/.json');
+	var dataset_promise = $http.get('/api/dataset/' + dataset_id + '/.json');
 	var instance_promise = $http.get('/api/codeinstance/.json');
+	var assignment_promise = $http.get('/api/assignment/.json');
 
 	//var instances_promise = $http.get('/api/code_instance/.json')
 
-	$q.all([user_promise, codes_promise, tweets_promise, instance_promise])
+	$q.all([user_promise, codes_promise, dataset_promise, instance_promise, assignment_promise ])
 		.then(function(data){
 			console.dir(data[0]);
 			console.dir(data[1]);
 			console.dir(data[2]);
 			console.dir(data[3]);
+			console.dir(data[4]);
 
-			var tweets = data[2].data;
+			var tweets = data[2].data.tweet_set;
 			var instances = data[3].data;
 
 			for(var i = 0; i < tweets.length; i++) {
+				tweets[i].html = $sce.trustAsHtml(tweets[i].embed_code);
 				tweets[i].codes = [];
 				for(j = 0; j < instances.length; j++) {
 					if(instances[j].tweet == tweets[i].id && instances[j].deleted == false) {
@@ -99,15 +70,22 @@ tweetCodingApp.controller('TweetListCtrl',
 
 
 			$scope.user = data[0].data;
-			$scope.codes = data[1].data;
 			$scope.tweets = tweets;
+			$scope.code_schemes = data[1].data;
+			$scope.assignment = data[4].data[0];
 
-			//$scope.$apply();
+			for(var i = 0; i < $scope.code_schemes.length; i++) {
+				var cs = $scope.code_schemes[i];
+				for(var j = 0; j < cs.code_set.length; j++) {
+					var code = cs.code_set[j];
+
+					$scope.codes.push(code);
+				}
+			}
+
+
 			$scope.$broadcast("data:loaded");
-
-			$scope.schema0_visible = ($scope.page == 0 || $scope.user.condition == 0 || $scope.user.condition == 1);
-			$scope.schema1_visible = ($scope.page == 1 || ($scope.user.condition == 0 || $scope.user.condition == 1));
-
+			twttr.widgets.load();
 		});
 
 
@@ -171,15 +149,15 @@ tweetCodingApp.controller('TweetListCtrl',
 	 *
 	 */
 	$scope.codeFilterBySchema0 = function(code_instance) {
-		if(code_instance.code != undefined && $scope.codes.length >= code_instance.code) {
+		if(code_instance.code != undefined && $scope.codes.length > 0) {
 			var code = $scope.codeLookupById(code_instance.code);
-			return code.schema === 0;
+			return code.scheme.id === 1;
 		}
 	}
 	$scope.codeFilterBySchema1 = function(code_instance) {
-		if(code_instance.code != undefined && $scope.codes.length >= code_instance.code) {
+		if(code_instance.code != undefined && $scope.codes.length > 0) {
 			var code = $scope.codeLookupById(code_instance.code);
-			return code.schema === 1;
+			return code.scheme.id === 2;
 		}
 	}
 
@@ -189,16 +167,11 @@ tweetCodingApp.controller('TweetListCtrl',
 		for(var i = 0; i < $scope.tweets.length; i++ ) {
 			var tweet = $scope.tweets[i];
 
-			for( var j = 0; j < tweet.codes.length; j++ ) {
-				// validate the code
-				if(tweet.codes[j].code < 4  ) {
-					count++;
-					break;
-				}
-			}
+			count += tweet.codes.length;
 		}
 
-		return count == 20;
+		return count < 3;
+		//return true;
 	}
 
 	$scope.oneTweet = function() {
@@ -216,7 +189,10 @@ tweetCodingApp.controller('TweetListCtrl',
 			$scope.selected = idx;
 
 			$location.hash("tweet-" + idx);
-			$anchorScroll();
+			//console.log("idx: " + idx.toString())
+			//$window.scrollTo(0, $("#tweet-" + (idx+1)).offset().top )
+
+			//$anchorScroll();
 		}
 	}
 
@@ -231,7 +207,7 @@ tweetCodingApp.controller('TweetListCtrl',
 	}
 
 	$scope.movePrev = function(ev){
-		if($scope.selected > 0) {
+		if($scope.selected >= 0) {
 			//$scope.tweets[$scope.selected].selected = false;
 			//$scope.selected -= 1;
 			$scope.setSelectedTweetIdx($scope.selected-1);
@@ -260,7 +236,7 @@ tweetCodingApp.controller('TweetListCtrl',
 				"deleted": false,
 				"code": idCode,
 				"tweet": idTweet,
-				"assignment": $scope.user.id
+				"assignment": $scope.assignment.id
 			})
 			.success(function(data){
 				for(var i = 0; i < tweet.codes.length; i++) {
@@ -289,7 +265,7 @@ tweetCodingApp.controller('TweetListCtrl',
 						code.deleted = true;
 						delete code.temp_id;
 						code.tweet = idTweet;
-						code.assignment = $scope.user.id;
+						code.assignment = $scope.assignment.id;
 						$http.put("/api/codeinstance/" + code.id + "/", code)
 							.success(function(data) {
 								console.log("deleted code: " + code.id);
@@ -348,13 +324,19 @@ tweetCodingApp.controller('TweetListCtrl',
 		var handled = false;
 		//console.log("-selected: " + $scope.selected);		switch(ev.keyCode) {
 
-
-		if($scope.schema0_visible && ev.keyCode >= 49 && ev.keyCode <= 51) {
-			$scope.toggleCodeOnSelectedTweet( ev.keyCode - 48 );
-			handled = true;
-		}else if($scope.schema1_visible && ev.keyCode >= 52 && ev.keyCode < 55) {
-			$scope.toggleCodeOnSelectedTweet( ev.keyCode - 48 );
-			handled = true;
+		if( ev.keyCode != 38 && ev.keyCode != 40 && ev.keyCode != 13 ) {
+			if($scope.code_schemes) {
+				for(var csid = 0; csid <  $scope.code_schemes.length; csid++ ) {
+					var cs = $scope.code_schemes[csid];
+					for(var cid = 0; cid < cs.code_set.length; cid++) {
+						var code = cs.code_set[cid];
+						if(code.key == String.fromCharCode(ev.keyCode)) {
+							$scope.toggleCodeOnSelectedTweet( code.id );
+							handled = true;
+						}
+					}
+				}			
+			}			
 		} else {
 			switch(ev.keyCode) {
 				case 38:
@@ -367,7 +349,19 @@ tweetCodingApp.controller('TweetListCtrl',
 					handled = true;
 					break;
 			}
+
 		}
+
+		/*
+		if($scope.schema0_visible && ev.keyCode >= 49 && ev.keyCode <= 51) {
+			$scope.toggleCodeOnSelectedTweet( ev.keyCode - 48 );
+			handled = true;
+		}else if($scope.schema1_visible && ev.keyCode >= 52 && ev.keyCode < 55) {
+			$scope.toggleCodeOnSelectedTweet( ev.keyCode - 48 );
+			handled = true;
+		} else {
+		}
+		*/
 
 		
 		//$scope.apply($scope.selected);
@@ -407,13 +401,33 @@ tweetCodingApp.controller('TweetListCtrl',
 }]);
 
 
-tweetCodingApp.controller('TweetCodeNavBar', ['$scope', 
-function($scope) {
+tweetCodingApp.controller('TweetCodeNavBar', ['$scope', '$document', 
+function($scope, $document) {
 	//$scope.
 
 	$scope.$on('data:loaded', function(event, args) {
 		console.log('data:loaded');
 		console.dir(event);
 		console.dir(args);
+
+window.twttr = (function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0],
+    t = window.twttr || {};
+  if (d.getElementById(id)) return t;
+  js = d.createElement(s);
+  js.id = id;
+  js.src = "//platform.twitter.com/widgets.js";
+  fjs.parentNode.insertBefore(js, fjs);
+ 
+  t._e = [];
+  t.ready = function(f) {
+    t._e.push(f);
+  };
+ 
+  return t;
+}(document, "script", "twitter-wjs"));
+
+		//twttr.widgets.load();
+		//$document[0].body.innerHTML += "<script async src=\"//platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>";
 	});
 }]);

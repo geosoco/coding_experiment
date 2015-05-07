@@ -13,3 +13,7 @@
 .label-Uncertainty { background: #fad; color: #000;}
 .label-Ambiguity { background: #afd; color: #000;}
 .label-Implicit { background: #adf; color: #000;}
+
+
+.EmbeddedTweet .EmbeddedTweet-acestor { opacity: 0.8; }
+.EmbeddedTweet .EmbeddedTweet-tweet { box-shadow: 0px 0px 0px 5px #c80 inset; }
