@@ -39,54 +39,23 @@ tweetCodingApp.controller('TweetListCtrl',
 
 
 	var user_promise = $http.get('/api/turkuser/current/.json');
-	/*
-		.success(function(data){
-			$scope.user = data;
-		})
-		.error(function(data,status,headers,config){
-			console.error("error getting user:" + status);
-		});
-*/
-
 	var codes_promise = $http.get('/api/codescheme/.json');
-	/*
-		.success(function(data){
-			//$scope.codes = data;
-			Array.prototype.push.apply($scope.codes, data);
-			//$scope.$apply();
-		})
-		.error(function(data,status,headers,config){
-			console.log('error getting codes: ' + status)
-		});
-	*/
-
-
-	var tweets_promise = $http.get('/api/tweet/.json');
-	/*
-		.success(function(data){
-			for(var i = 0; i < data.length; i++) {
-				data[i].codes = [];
-			}
-
-			$scope.tweets = data;
-		})
-		.error(function(data, status, headers, config){
-			console.error("error getting tweets: " + status);
-		});
-	*/
-
+	//var tweets_promise = $http.get('/api/tweet/.json');
+	var dataset_promise = $http.get('/api/dataset/' + dataset_id + '/.json');
 	var instance_promise = $http.get('/api/codeinstance/.json');
+	var assignment_promise = $http.get('/api/assignment/.json');
 
 	//var instances_promise = $http.get('/api/code_instance/.json')
 
-	$q.all([user_promise, codes_promise, tweets_promise, instance_promise])
+	$q.all([user_promise, codes_promise, dataset_promise, instance_promise, assignment_promise ])
 		.then(function(data){
 			console.dir(data[0]);
 			console.dir(data[1]);
 			console.dir(data[2]);
 			console.dir(data[3]);
+			console.dir(data[4]);
 
-			var tweets = data[2].data;
+			var tweets = data[2].data.tweet_set;
 			var instances = data[3].data;
 
 			for(var i = 0; i < tweets.length; i++) {
@@ -103,9 +72,20 @@ tweetCodingApp.controller('TweetListCtrl',
 			$scope.user = data[0].data;
 			$scope.tweets = tweets;
 			$scope.code_schemes = data[1].data;
+			$scope.assignment = data[4].data[0];
+
+			for(var i = 0; i < $scope.code_schemes.length; i++) {
+				var cs = $scope.code_schemes[i];
+				for(var j = 0; j < cs.code_set.length; j++) {
+					var code = cs.code_set[j];
+
+					$scope.codes.push(code);
+				}
+			}
 
 
 			$scope.$broadcast("data:loaded");
+			twttr.widgets.load();
 		});
 
 
@@ -169,15 +149,15 @@ tweetCodingApp.controller('TweetListCtrl',
 	 *
 	 */
 	$scope.codeFilterBySchema0 = function(code_instance) {
-		if(code_instance.code != undefined && $scope.codes.length >= code_instance.code) {
+		if(code_instance.code != undefined && $scope.codes.length > 0) {
 			var code = $scope.codeLookupById(code_instance.code);
-			return code.schema === 0;
+			return code.scheme.id === 1;
 		}
 	}
 	$scope.codeFilterBySchema1 = function(code_instance) {
-		if(code_instance.code != undefined && $scope.codes.length >= code_instance.code) {
+		if(code_instance.code != undefined && $scope.codes.length > 0) {
 			var code = $scope.codeLookupById(code_instance.code);
-			return code.schema === 1;
+			return code.scheme.id === 2;
 		}
 	}
 
@@ -187,16 +167,11 @@ tweetCodingApp.controller('TweetListCtrl',
 		for(var i = 0; i < $scope.tweets.length; i++ ) {
 			var tweet = $scope.tweets[i];
 
-			for( var j = 0; j < tweet.codes.length; j++ ) {
-				// validate the code
-				if(tweet.codes[j].code < 4  ) {
-					count++;
-					break;
-				}
-			}
+			count += tweet.codes.length;
 		}
 
-		return count == 20;
+		return count < 3;
+		//return true;
 	}
 
 	$scope.oneTweet = function() {
@@ -213,7 +188,7 @@ tweetCodingApp.controller('TweetListCtrl',
 		if(idx >= 0 && idx < $scope.tweets.length ) {
 			$scope.selected = idx;
 
-			$location.hash("tweet-" + (idx+1));
+			$location.hash("tweet-" + idx);
 			//console.log("idx: " + idx.toString())
 			//$window.scrollTo(0, $("#tweet-" + (idx+1)).offset().top )
 
@@ -232,7 +207,7 @@ tweetCodingApp.controller('TweetListCtrl',
 	}
 
 	$scope.movePrev = function(ev){
-		if($scope.selected > 0) {
+		if($scope.selected >= 0) {
 			//$scope.tweets[$scope.selected].selected = false;
 			//$scope.selected -= 1;
 			$scope.setSelectedTweetIdx($scope.selected-1);
@@ -261,7 +236,7 @@ tweetCodingApp.controller('TweetListCtrl',
 				"deleted": false,
 				"code": idCode,
 				"tweet": idTweet,
-				"assignment": $scope.user.id
+				"assignment": $scope.assignment.id
 			})
 			.success(function(data){
 				for(var i = 0; i < tweet.codes.length; i++) {
@@ -290,7 +265,7 @@ tweetCodingApp.controller('TweetListCtrl',
 						code.deleted = true;
 						delete code.temp_id;
 						code.tweet = idTweet;
-						code.assignment = $scope.user.id;
+						code.assignment = $scope.assignment.id;
 						$http.put("/api/codeinstance/" + code.id + "/", code)
 							.success(function(data) {
 								console.log("deleted code: " + code.id);
@@ -434,6 +409,25 @@ function($scope, $document) {
 		console.log('data:loaded');
 		console.dir(event);
 		console.dir(args);
+
+window.twttr = (function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0],
+    t = window.twttr || {};
+  if (d.getElementById(id)) return t;
+  js = d.createElement(s);
+  js.id = id;
+  js.src = "//platform.twitter.com/widgets.js";
+  fjs.parentNode.insertBefore(js, fjs);
+ 
+  t._e = [];
+  t.ready = function(f) {
+    t._e.push(f);
+  };
+ 
+  return t;
+}(document, "script", "twitter-wjs"));
+
+		//twttr.widgets.load();
 		//$document[0].body.innerHTML += "<script async src=\"//platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>";
 	});
 }]);

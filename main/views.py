@@ -27,17 +27,23 @@ import datetime
 condition_map = {
 	"instructions" : { 
 		"0" : {
-			"0": { "page": "instructions.html", "next": "/coding/0/" },
-			"1": { "page": "instructions_1.html", "next": "/coding/0/" },
-			"2": { "page": "instructions_2.html", "next": "/coding/0/" },
+			"1": { "page": "instructions.html", "next": "/coding/0/" },
+			"2": { "page": "instructions_1.html", "next": "/coding/0/" },
+			"3": { "page": "instructions_2.html", "next": "/coding/0/" },
 		}
 	}, 
 	"coding" : {
 		"0": {
-			"0": { "page": "coding.html", "next": "/thanks/" },
-			"1": { "page": "coding_1.html", "next": "/thanks/" },
-			"2": { "page": "coding_2.html", "next": "/thanks/" },	
+			"1": { "page": "coding.html", "next": "/coding/1/" },
+			"2": { "page": "coding.html", "next": "/coding/1/" },
+			"3": { "page": "coding.html", "next": "/coding/1/" },	
+		},
+		"1": {
+			"1": { "page": "coding.html", "next": "/thanks/" },
+			"2": { "page": "coding.html", "next": "/thanks/" },
+			"3": { "page": "coding.html", "next": "/thanks/" },	
 		}
+
 	},
 }
 
@@ -108,7 +114,7 @@ def build_user_cookie(request, user_id = None, username = None, condition = None
 	return c
 
 
-def create_user(request):
+def create_user(request, cnd=None):
 	
 	request.session.flush()
 
@@ -143,8 +149,14 @@ def create_user(request):
 	# find condition
 	all_conditions = Condition.objects.filter(study_id=1)
 	print "got %d conditions"%(all_conditions.count())
-	# XXX SOCO this fixes the condition
-	condition = all_conditions[0]
+
+	if cnd is None:
+		rnd = datetime.datetime.now().second % (all_conditions.count()+1)
+		print "Assinging user to ", rnd
+		condition = all_conditions[rnd]
+	else:
+		print "Forcing user to ", cnd
+		condition = all_conditions[int(cnd)]
 
 	# assignment
 	assignment = Assignment.objects.create(
@@ -195,14 +207,23 @@ def coding(request, page):
 	condition_id = int(c["condition"])
 	condition = Condition.objects.get(pk=condition_id)
 	c["next"] = condition_map["coding"][str(page)][str(condition.id)]["next"]
+	datasets = condition.dataset.all()
+	for index, ds in enumerate(datasets):
+		print "#%d, %s"%(index, repr(ds))
+		if index == int(page):
+			print "got index: ", index
+			c["dataset_id"] = ds.id
+			break
+	
 	print condition.name, condition.id
 	print condition_map["coding"][str(page)][str(condition.id)]["next"]
 	return render(request, "base.html" ,c)
 
 
-def landing(request):
+def landing(request, cnd=None):
+	print "cnd: ", cnd
 	if request.method == "POST":
-		c = create_user(request)
+		c = create_user(request, cnd=cnd)
 
 		#print "user-created"
 		#print repr(request.POST)

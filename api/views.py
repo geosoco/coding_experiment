@@ -51,24 +51,33 @@ class TweetViewSet(viewsets.ModelViewSet):
 class AssignmentViewSet(viewsets.ModelViewSet):
 	"""
 	"""
-	queryset = Assignment.objects.all()
 	serializer_class = AssignmentSerializer
 	authentication_classes = (SessionAuthentication, BasicAuthentication)
 	permission_classes = (IsAuthenticated,)
 
 
 	def get_queryset(self):
-		return Assignment.objects.get(user=self.request.user.id)
+		return Assignment.objects.filter(user=self.request.user)
 
 
 class CodeSchemeViewSet(viewsets.ModelViewSet):
 	"""
 	"""
-	queryset = CodeScheme.objects.all()
 	serializer_class = CodeSchemeSerializer
 	authentication_classes = (SessionAuthentication, BasicAuthentication)
 	permission_classes = (IsAuthenticated,)
+	depth=2
 
+	def get_queryset(self):
+		assignment = Assignment.objects.get(user=self.request.user.id)
+		print assignment.condition
+		print assignment.condition.id
+		print assignment.condition.code_schemes.all().count()
+		code_scheme_ids = [cs.id for cs in assignment.condition.code_schemes.all()]
+
+		#code_schemes = 
+
+		return CodeScheme.objects.filter(id__in=code_scheme_ids)
 
 class CodeViewSet(viewsets.ModelViewSet):
 	"""
@@ -140,6 +149,16 @@ class CodeInstanceViewSet(viewsets.ModelViewSet):
 
 		return super(CodeInstanceViewSet, self).dispatch(request, *args, **kwargs)
 
+
+class DatasetViewSet(viewsets.ModelViewSet):
+	"""
+	"""
+	queryset = Dataset.objects.all()
+	serializer_class = DatasetSerializer
+	permission_classes = (IsAuthenticated,)
+	authentication_classes = (SessionAuthentication, BasicAuthentication)
+
+	
 
 
 

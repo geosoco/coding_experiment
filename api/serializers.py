@@ -5,14 +5,16 @@ from rest_framework import serializers
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
-		fields = ('id', 'username', 'email')
+		fields = ('id', 'username')
 
 
 class AssignmentSerializer(serializers.ModelSerializer):
+	user = UserSerializer(partial=True, read_only=True)
 	class Meta:
 		model = Assignment
 		fields = ('id', 'condition', 'user')
-		partial = True
+		depth = 3
+
 
 class TurkUserSerializer(serializers.ModelSerializer):
 	#user = serializers.RelatedField(source='user.id', read_only=True)
@@ -61,4 +63,9 @@ class CodeInstanceSerializer(serializers.ModelSerializer):
 		fields = ('id', 'date', 'deleted', 'code', 'tweet', 'assignment', 'code')
 		base_name = "codeinstance"
 
-
+class DatasetSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Dataset
+		fields = ('id', 'name', 'description', 'tweet_set')
+		read_only_fields = ('tweet_set')
+		depth = 2

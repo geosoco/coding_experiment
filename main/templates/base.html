@@ -57,6 +57,9 @@
 
 	#myModal2.modal-dialog { width: 1280px; }
 	</style>
+	<script>
+		window.dataset_id = {{dataset_id}};
+	</script>
 </head>
 
 <body ng-controller="{% block ng_controller %}TweetListCtrl{% endblock %}" data-page="{{page}}">
@@ -86,11 +89,11 @@
 
 			<ul class="styleless tweet-list ng-hide ng-cloak" ng-show="tweets && tweets.length > 0" >
 				{% verbatim %}
-				<li id="tweet-{{tweet.id}}" class="row item-row ng-hide" ng-repeat="tweet in tweets" ng-include="'tpl-tweet-code.html'" ng-class="{'selected': selected==$index}" ng-click="itemClicked($index)" ng-show="!oneTweet() || selected==$index">{{selected}}
+				<li id="tweet-{{$index}}" class="row item-row ng-hide" ng-repeat="tweet in tweets" ng-include="'tpl-tweet-code.html'" ng-class="{'selected': selected==$index}" ng-click="itemClicked($index)" ng-show="!oneTweet() || selected==$index">{{selected}}
 				</li>
 				{% endverbatim %}
 				<li class="row item-row next-row" >
-					<a class="btn btn-primary pull-right" href="{{next}}" ng-class="{'disabled': !incomplete() }">Submit</a>
+					<a class="btn btn-primary pull-right" href="{{next}}" ng-class="{'disabled': incomplete() }">Submit</a>
 				</li>
 			</ul>
 			<div ng-switch="tweets && tweets.length > 0">
@@ -106,7 +109,7 @@
 							    console.log("Created widget", event.target.id);
 							  }
 							);
-							twttr.widgets.load();
+							//twttr.widgets.load();
 						})();
 					</script>
 				</div>
@@ -170,7 +173,7 @@
 								<a href="#" ng-click="toggleCode(tweets[selected], code.id)"><span class="keyboard-btn">{{code.key}}</span><span class="code label label-{{code.name}}">{{code.name}}</span></a>
 							</li>
 						</ul>
-					</div>		
+					</div>
 </script>
 
 {% endverbatim %}
@@ -183,22 +186,7 @@
 <script src="{% static "js/controllers.js" %}"></script>
 <script src="{% static "js/services.js" %}"></script>
 <script src="{% static "js/main.js" %}"></script>
-<script>window.twttr = (function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0],
-    t = window.twttr || {};
-  if (d.getElementById(id)) return t;
-  js = d.createElement(s);
-  js.id = id;
-  js.src = "//platform.twitter.com/widgets.js";
-  fjs.parentNode.insertBefore(js, fjs);
- 
-  t._e = [];
-  t.ready = function(f) {
-    t._e.push(f);
-  };
- 
-  return t;
-}(document, "script", "twitter-wjs"));</script>
+<script></script>
 
 </body>
 </html>

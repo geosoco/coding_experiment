@@ -115,10 +115,10 @@ class Assignment(models.Model):
 	condition = models.ForeignKey(Condition)
 
 	def __str__(self):
-		return "%s (%d)"%(self.name, self.id)
+		return "%d (%d - %d)"%(self.id, self.user.id, self.condition.id)
 
 	def __unicode__(self):
-		return u"%s (%d)"%(self.name, self.id)	
+		return u"%d (%d - %d)"%(self.id, self.user.id, self.condition.id)	
 
 
 class CodeInstance(models.Model):
