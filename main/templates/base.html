@@ -71,7 +71,7 @@
 					<a href="#" class="btn btn-default" data-toggle="modal" data-target="#myModal">Help</a>
 				</div>				
 				<div class="selection-status pull-right">
-					<span class="ng-hide" ng-show="tweets.length > 0">Code {{selected+1}} of {{tweets.length}}</span>
+					<span class="ng-hide" ng-show="tweets.length > 0">Tweet {{selected+1}} of {{tweets.length}}</span>
 				</div>
 				{% endverbatim %}
 			</div>
@@ -94,7 +94,22 @@
 				</li>
 			</ul>
 			<div ng-switch="tweets && tweets.length > 0">
-				<div ng-switch-when="true"><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script></div>
+				<div ng-switch-when="true">
+					
+					<script>
+						(function(twttr) {
+							console.log("running twttr")
+							console.dir(twttr);
+							twttr.events.bind(
+							  'rendered',
+							  function (event) {
+							    console.log("Created widget", event.target.id);
+							  }
+							);
+							twttr.widgets.load();
+						})();
+					</script>
+				</div>
 			</div>
 
 		</div>
@@ -149,20 +164,13 @@
 	</div>
 </script>
 <script type="text/ng-template" id="tpl-code-button.html">
-					<div class="code-bar-schema-block schema-0 ng-hide" ng-show="schema0_visible">
-						<ul class="styleless code-bar" ng-hide="!codes" >
-							<li ng-repeat="code in codes | filter:{schema:0}" >
-								<a href="#" ng-click="toggleCode(tweets[selected], code.id)"><span class="keyboard-btn">{{code.id}}</span><span class="code label label-{{code.name}}">{{code.name}}</span></a>
+					<div class="code-bar-scheme-block pull-left ng-hide" ng-repeat="scheme in code_schemes" ng-show="code_schemes">
+						<ul class="styleless code-bar" ng-show="scheme">
+							<li ng-repeat="code in scheme.code_set" >
+								<a href="#" ng-click="toggleCode(tweets[selected], code.id)"><span class="keyboard-btn">{{code.key}}</span><span class="code label label-{{code.name}}">{{code.name}}</span></a>
 							</li>
 						</ul>
-					</div>
-					<div class="code-bar-schema-block schema-1 ng-hide" ng-show="schema1_visible">
-						<ul class="styleless code-bar" ng-hide="!codes" >
-							<li ng-repeat="code in codes | filter:{schema:1}" >
-								<a href="#" ng-click="toggleCode(tweets[selected], code.id)"><span class="keyboard-btn">{{code.id}}</span><span class="code label label-{{code.name}}">{{code.name}}</span></a>
-							</li>						
-						</ul>
-					</div>					
+					</div>		
 </script>
 
 {% endverbatim %}
@@ -175,7 +183,22 @@
 <script src="{% static "js/controllers.js" %}"></script>
 <script src="{% static "js/services.js" %}"></script>
 <script src="{% static "js/main.js" %}"></script>
-
+<script>window.twttr = (function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0],
+    t = window.twttr || {};
+  if (d.getElementById(id)) return t;
+  js = d.createElement(s);
+  js.id = id;
+  js.src = "//platform.twitter.com/widgets.js";
+  fjs.parentNode.insertBefore(js, fjs);
+ 
+  t._e = [];
+  t.ready = function(f) {
+    t._e.push(f);
+  };
+ 
+  return t;
+}(document, "script", "twitter-wjs"));</script>
 
 </body>
 </html>

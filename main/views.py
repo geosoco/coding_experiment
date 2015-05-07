@@ -12,10 +12,10 @@ import datetime
 
 # 
 # conditions
-# 	0 - All Codes, All Tweets
-#	1 - All Codes, One Tweet
-#	2 - Half Codes, All Tweets
-#	3 - Half Codes, One Tweet
+# 	0 - All Codes
+#	1 - First Level only
+#	2 - Second level only
+#	3 - (later: uncertainty yes/no)
 
 
 #
@@ -28,29 +28,15 @@ condition_map = {
 	"instructions" : { 
 		"0" : {
 			"0": { "page": "instructions.html", "next": "/coding/0/" },
-			"1": { "page": "instructions.html", "next": "/coding/0/" },
-			"2": { "page": "instructions.html", "next": "/coding/0/" },
-			"3": { "page": "instructions.html", "next": "/coding/0/" },
-		},
-		"1" : {
-			"0": { "page": "error.html", "next": "" },
-			"1": { "page": "error.html", "next": "" },
-			"2": { "page": "instructions_1.html", "next": "/coding/1/" },
-			"3": { "page": "instructions_1.html", "next": "/coding/1/" },			
+			"1": { "page": "instructions_1.html", "next": "/coding/0/" },
+			"2": { "page": "instructions_2.html", "next": "/coding/0/" },
 		}
 	}, 
 	"coding" : {
 		"0": {
 			"0": { "page": "coding.html", "next": "/thanks/" },
-			"1": { "page": "coding.html", "next": "/thanks/" },
-			"2": { "page": "coding.html", "next": "/instructions/1/" },
-			"3": { "page": "coding.html", "next": "/instructions/1/" },		
-		},
-		"1" : {
-			"0": { "page": "error.html", "next": "" },
-			"1": { "page": "error.html", "next": "" },
-			"2": { "page": "coding.html", "next": "/thanks/" },
-			"3": { "page": "coding.html", "next": "/thanks/" },
+			"1": { "page": "coding_1.html", "next": "/thanks/" },
+			"2": { "page": "coding_2.html", "next": "/thanks/" },	
 		}
 	},
 }
@@ -65,11 +51,12 @@ def random_string(num):
 
 
 
-def build_user_cookie(request, user_id = None, username = None, condition = None, turkuser_id = None):
+def build_user_cookie(request, user_id = None, username = None, condition = None, turkuser_id = None, assignment_id = None):
 	c = {}
 
 	user_id_str = "user_id"
 	username_str = "username"
+	assignment_str = "assignment"
 	condition_str = "condition"
 	turkuser_str = "turkuser_id"
 
@@ -78,8 +65,10 @@ def build_user_cookie(request, user_id = None, username = None, condition = None
 		if request is not None and request.user is not None and request.user.is_authenticated():
 			# grab from username
 			user_id = request.user.id
-			username = request.user.turkuser.worker_id
-			condition = request.user.turkuser.condition
+			username = request.user.username
+			assignment = Assignment.objects.get(user=request.user)
+			assignment_id = assignment.id
+			condition = assignment.condition.id
 			turkuser_id = request.user.turkuser.id
 		else:
 			# try to grab from cookie
@@ -91,6 +80,8 @@ def build_user_cookie(request, user_id = None, username = None, condition = None
 				condition = request.session[condition_str]
 			if turkuser_str in request.session:
 				turkuser_id = request.session[turkuser_str]
+			if assignment_str in request.session:
+				assignment_id = request.session[assignment_str]
 
 
 	# add to cookie
@@ -98,6 +89,7 @@ def build_user_cookie(request, user_id = None, username = None, condition = None
 	c[username_str] = username
 	c[condition_str] = condition
 	c[turkuser_str] = turkuser_id
+	c[assignment_str] = assignment_id
 
 	# add to session, just in case
 	if user_id is not None:
@@ -108,6 +100,8 @@ def build_user_cookie(request, user_id = None, username = None, condition = None
 		request.session[condition_str] = condition
 	if turkuser_id is not None:
 		request.session[turkuser_str] = turkuser_id
+	if assignment_id is not None:
+		request.session[assignment_str] = assignment_id
 
 	print "build_user_cookie: ", repr(c)
 
@@ -115,6 +109,9 @@ def build_user_cookie(request, user_id = None, username = None, condition = None
 
 
 def create_user(request):
+	
+	request.session.flush()
+
 	c = {}
 
 	#print "create_user"
@@ -132,19 +129,29 @@ def create_user(request):
 
 	#print "saved"
 	# create matching turk user
-	condition = random.randint(0,3)
+	#condition = random.randint(0,2)
 	completion_code = random_string(16)
 	turk_user = TurkUser.objects.create(
 		user=user, 
-		worker_id = username,
-		condition=condition,
 		initial_browser_details = request.POST['browser_info'],
-		completion_code = completion_code
+		completion_code = completion_code,
+		start_time = datetime.datetime.now()
 		)
 	turk_user.save()
 	#print "turk_user saved"
 
-	request.session.flush()
+	# find condition
+	all_conditions = Condition.objects.filter(study_id=1)
+	print "got %d conditions"%(all_conditions.count())
+	# XXX SOCO this fixes the condition
+	condition = all_conditions[0]
+
+	# assignment
+	assignment = Assignment.objects.create(
+		user=user,
+		condition=condition)
+	assignment.save()
+
 
 	# log user in
 	logged_in_user = authenticate(username=username, password=default_password)
@@ -156,7 +163,7 @@ def create_user(request):
 	else:
 		print "could not authenticate user"
 
-	c = build_user_cookie(request, user_id = logged_in_user.id, username=username, condition=condition, turkuser_id = turk_user.id )
+	c = build_user_cookie(request, user_id = logged_in_user.id, username=username, condition=condition.id, turkuser_id = turk_user.id, assignment_id = assignment.id )
 
 	print "cookie built"
 	print c
@@ -185,9 +192,11 @@ def coding(request, page):
 	print "authenticated", request.user.is_authenticated()
 	page = page if page is not None else 0
 	c["page"] = page
-	c["next"] = condition_map["coding"][str(page)][str(request.user.turkuser.condition)]["next"]
-	print request.user.turkuser.condition
-	print condition_map["coding"][str(page)][str(request.user.turkuser.condition)]["next"]
+	condition_id = int(c["condition"])
+	condition = Condition.objects.get(pk=condition_id)
+	c["next"] = condition_map["coding"][str(page)][str(condition.id)]["next"]
+	print condition.name, condition.id
+	print condition_map["coding"][str(page)][str(condition.id)]["next"]
 	return render(request, "base.html" ,c)
 
 

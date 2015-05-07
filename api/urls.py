@@ -5,8 +5,10 @@ import views
 router = routers.DefaultRouter()
 router.register(r'turkuser', views.TurkUserViewSet)
 router.register(r'tweet', views.TweetViewSet)
-router.register(r'code', views.CodeViewSet)
+router.register(r'codescheme', views.CodeSchemeViewSet )
+router.register(r'code', views.CodeViewSet, base_name="Code")
 router.register(r'codeinstance', views.CodeInstanceViewSet, base_name="CodeInstance")
+router.register(r'assignment', views.CodeViewSet, base_name="Assignment")
 #router.register(r'currentuser', views.CurrentTurkUserViewSet)
 
 # Wire up our API using automatic URL routing.

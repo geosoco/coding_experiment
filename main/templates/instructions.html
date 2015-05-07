@@ -6,12 +6,17 @@
 			<div class="row">
 				<div class="col-md-12">
 					<h1>Instructions</h1>
-					<p>You will be applying labels to 20 tweets about a rumor from the recent "Sydney Siege" hostage situation. You will be applying two sets of codes that define different properties about this event. You will apply combinations of 6 different labels to each of the tweets. {% if condition == 2 or condition == 3 %}You will do this in two phases. {% endif %}					
+					<p>You will be applying labels to 45 tweets about a rumor from the "Sydney Siege" hostage situation. In this case, rumor simply means unsubstantiated information, and it may be true or false.  
 					</p>
 
-					<h2>Rumor</h2>
-					<p>This rumor is that a flag held in a window was an ISIS flag. Thus, any tweet that suggests the flag was an ISIS flag would be an <span class="label label-default label-Affirm">Affirm</span> label. Any flag that questions or denies that it was an ISIS flag would be a <span class="label label-default label-Deny">Deny</span> label.
+					<h2>The Rumor</h2>
+					<h3>Suicide Bomber / Bomb belt, backpack, or vest</h3>
+					<p>This rumor claims someone was a suicide bomber or that they had an explosive device in backpacks, vests, or belts.</p>
 
+					<h2>Tweets</h2>
+					<p>Each of these tweets will be embedded. Some will have pictures, and some will be part of a discussion. You should use all available information for coding, but <strong>focus on the bottom tweet for applying your codes.</strong>
+					</p>
+					<blockquote class="twitter-tweet" lang="en"><p><a href="https://twitter.com/Interior">@Interior</a> <a href="https://twitter.com/GrandTetonNPS">@GrandTetonNPS</a> &#10;<a href="https://twitter.com/hashtag/agreed?src=hash">#agreed</a> stunning</p>&mdash; alan0606 (@alan0606) <a href="https://twitter.com/alan0606/status/463440608930324480">May 5, 2014</a></blockquote>
 
 
 					<h2>Navigating Tweets</h2>
@@ -31,17 +36,20 @@
 					</div>
 
 					<h2>Applying Labels</h2>
-					<p>To apply / remove labels, you can use the keyboard keys <span class="keyboard-btn">1</span> through <span class="keyboard-btn">{% if condition == 0 or condition == 1 %}6{% else %}3{% endif %}</span>. Press the button once to add the code and a second time if you want remove it. </p>
+					<p>To apply / remove labels, you can use the keyboard keys <span class="keyboard-btn">1</span> through <span class="keyboard-btn">4</span>. Press the button once to add the code and a second time if you want remove it. </p>
 
-					<p>You will be applying two sets of labels. These must be applied differently. The first set of codes describes whether the tweet affirms or denies the rumor. <strong>Only one of these may be applied at a time</strong>.
+					<h3>Affirmation or Denial</h3>
+					<p>You will be applying {% if condition == 0 %}two sets of labels{% elif condition == 1 %}one set of labels{% else %} one label{% endif %}. These must be applied differently. The first set of labels describes whether the tweet affirms or denies the rumor. You should label any tweet that supports or just passes along this information as <span class="label label-default label-Affirm">Affirm</span> label. Any tweet that denies or questions the presence of a bomb or the ability of the person to be a suicide bomber should be labeled  <span class="label label-default label-Deny">Deny</span> label. In rare cases, the tweet will not affirm or deny the rumor. You should label these <span class="label labe-default label-Neutral">Neutral</span>. <strong>You must apply ONLY one of these for each tweet.</strong>
+					</p>
+
 					<table class="table" style="margin: 40px 10px;">
 						<thead>
 							<tr>
-								<th>Code</th>
+								<th>Label</th>
 								<th>Keyboard</th>
 								<th>Definition</th>
 								<th>Example</th>
-							</tr>						
+							</tr>
 						</thead>
 						<tbody>
 
@@ -49,67 +57,53 @@
 								<td><span class="label label-default label-Affirm">Affirm</span></td>
 								<td><span class="keyboard-btn">1</span></td>
 								<td>This tweet affirms, supports, and functions to pass along the story. </td>
-								<td>@KevinZZ Hostages are holding up an ISIS flag in the window. #Sydney #SydneySiege</td>
+								<td>@KevinZZ The hostage-taker has a bomb in his backpack. #Sydney #SydneySiege</td>
 							</tr>
 							<tr>
 								<td><span class="label label-default label-Neutral">Neutral</span></td>
 								<td><span class="keyboard-btn">2</span></td>
 								<td>The tweet is exactly neutral (use sparingly). Be careful not to conflate with an implicit affirmation.</td>
-								<td>RT @JillSmith: The hostage are holding up some kind of flag.</td>
+								<td>RT @JillSmith: CNN has a picture of the hostage taker.</td>
 							</tr>
 							<tr>
 								<td><span class="label label-default label-Deny">Deny</span></td>
-								<td><span class="keyboard-btn">2</span></td>
-								<td>This tweet denies all or part of the story.</td>
-								<td>The flag in the window belongs to a different Islamic group. #sydneysiege</td>
+								<td><span class="keyboard-btn">3</span></td>
+								<td>This tweet denies or questions all or part of the story.</td>
+								<td>I don't see any sign of a bomb or backpack in that picture. #sydneysiege</td>
 							</tr>
 						</tbody>
 					</table>
 
-					</p>
 
-					{% if condition == 0 or condition == 1 %}
-					<p>
-					The second set of codes describes various properties about the tweet. These may or may not be present in the tweet, and can occur in any combination. In other words, the tweet may not exhibit any of these properties, others may exhibit some combination, and some may exhibit all of them.
+					<h3>Uncertainty</h3>
+					<p>Additionally, another label should be applied to every tweet that expresses uncertainty about the information.</p>
 
-						<table class="table" style="margin: 20px;">
-							<thead>
-								<tr>
-									<th>Code</th>
-									<th>Keyboard</th>
-									<th>Definition</th>
-									<th>Example</th>
-								</tr>						
-							</thead>
-							<tbody>
+					<table class="table" style="margin: 20px;">
+						<thead>
+							<tr>
+								<th>Label</th>
+								<th>Keyboard</th>
+								<th>Definition</th>
+								<th>Example</th>
+							</tr>						
+						</thead>
+						<tbody>
+							<tr>
+								<td><span class="label label-Uncertainty">Uncertainty</span></td>
+								<td><span class="keyboard-btn">4</span></td>
+								<td>This tweet expresses some level of uncertainty about the story. This refers to a property of the tweet itself, not your uncertainty. In other words, the tweet suggests that the veracity of the story is not 100% resolved. (This code refers to a relationship between the tweet’s author and the rumor/story - i.e. the tweet author expresses uncertainty in the tweet). [Not me, them]
+								</td>								
+								<td>Is no one else concerned there might be a bomb in that backpack? #Sydney</td>
+							</tr>
+						</tbody>
+					</table>
 
-								<tr>
-									<td><span class="label label-Implicit">Implicit</span></td>
-									<td><span class="keyboard-btn">4</span></td>
-									<td>This tweet does not explicitly address the story, however it still affirms or denies information implicitly. In other words, the person affirms (or denies) the story without exactly spelling it out. Sarcasm is often implicit. Referencing a story can be an implicit affirmation.</td>
-									
-									<td>RT @KatyJ: This is the smartest terrorist. #SydneySiege</td>
-								</tr>							
-								<tr>
-									<td><span class="label label-Ambiguity">Ambiguity</span></td>
-									<td><span class="keyboard-btn">5</span></td>
-									<td>Regarding the content of the tweet, there is some ambiguity as to whether this tweet affirms or denies the rumor. In other words, it’s not 100% clear to the reader (from the way the tweet is communicated) whether this affirms or denies the rumor. This code refers to a relationship between you and the tweet - whether the reader can interpret the tweet with 100% certainty.
-	</td>
-									<td>Here's the ISIS logo for comparison: (missing image)</td>
-								</tr>
-								<tr>
-									<td><span class="label label-Uncertainty">Uncertainty</span></td>
-									<td><span class="keyboard-btn">6</span></td>
-									<td>This tweet expresses some level of uncertainty about the story. This refers to a property of the tweet itself, not your uncertainty. In other words, the tweet suggests that the veracity of the story is not 100% resolved. (This code refers to a relationship between the tweet’s author and the rumor/story - i.e. the tweet author expresses uncertainty in the tweet). [Not me, them]
-									</td>								
-									<td>I can't tell if that's an ISIS flag or not. #Sydney</td>
-								</tr>
-							</tbody>
-						</table>
-					</p>
-					{% endif %}
 				</div>
 			</div>
 
-
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 {% endblock %}
+
+
+
+

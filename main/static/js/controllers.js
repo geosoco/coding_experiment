@@ -20,6 +20,7 @@ tweetCodingApp.controller('TweetListCtrl',
 	function($scope, $window, $document, $cookies, $sce, $http, $location, $anchorScroll, $q) {
 
 	$scope.codes = [];
+	$scope.code_schemes = [];
 	$scope.selected = 0;
 	$scope.tweets = [];
 	$scope.next = 0;
@@ -47,7 +48,7 @@ tweetCodingApp.controller('TweetListCtrl',
 		});
 */
 
-	var codes_promise = $http.get('/api/code/.json');
+	var codes_promise = $http.get('/api/codescheme/.json');
 	/*
 		.success(function(data){
 			//$scope.codes = data;
@@ -100,13 +101,8 @@ tweetCodingApp.controller('TweetListCtrl',
 
 
 			$scope.user = data[0].data;
-			$scope.codes = data[1].data;
 			$scope.tweets = tweets;
-
-			//$scope.$apply();
-
-			$scope.schema0_visible = ($scope.page == 0 || $scope.user.condition == 0 || $scope.user.condition == 1);
-			$scope.schema1_visible = ($scope.page == 1 || ($scope.user.condition == 0 || $scope.user.condition == 1));
+			$scope.code_schemes = data[1].data;
 
 
 			$scope.$broadcast("data:loaded");
@@ -353,13 +349,19 @@ tweetCodingApp.controller('TweetListCtrl',
 		var handled = false;
 		//console.log("-selected: " + $scope.selected);		switch(ev.keyCode) {
 
-
-		if($scope.schema0_visible && ev.keyCode >= 49 && ev.keyCode <= 51) {
-			$scope.toggleCodeOnSelectedTweet( ev.keyCode - 48 );
-			handled = true;
-		}else if($scope.schema1_visible && ev.keyCode >= 52 && ev.keyCode < 55) {
-			$scope.toggleCodeOnSelectedTweet( ev.keyCode - 48 );
-			handled = true;
+		if( ev.keyCode != 38 && ev.keyCode != 40 && ev.keyCode != 13 ) {
+			if($scope.code_schemes) {
+				for(var csid = 0; csid <  $scope.code_schemes.length; csid++ ) {
+					var cs = $scope.code_schemes[csid];
+					for(var cid = 0; cid < cs.code_set.length; cid++) {
+						var code = cs.code_set[cid];
+						if(code.key == String.fromCharCode(ev.keyCode)) {
+							$scope.toggleCodeOnSelectedTweet( code.id );
+							handled = true;
+						}
+					}
+				}			
+			}			
 		} else {
 			switch(ev.keyCode) {
 				case 38:
@@ -372,7 +374,19 @@ tweetCodingApp.controller('TweetListCtrl',
 					handled = true;
 					break;
 			}
+
 		}
+
+		/*
+		if($scope.schema0_visible && ev.keyCode >= 49 && ev.keyCode <= 51) {
+			$scope.toggleCodeOnSelectedTweet( ev.keyCode - 48 );
+			handled = true;
+		}else if($scope.schema1_visible && ev.keyCode >= 52 && ev.keyCode < 55) {
+			$scope.toggleCodeOnSelectedTweet( ev.keyCode - 48 );
+			handled = true;
+		} else {
+		}
+		*/
 
 		
 		//$scope.apply($scope.selected);
