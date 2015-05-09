@@ -1,13 +1,18 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, render_to_response, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseNotFound,  HttpResponseBadRequest
 from django.core.urlresolvers import reverse
+from django.db.models import Count
 #from django.template.context_processors import csrf
 from models import *
 import string
 import random
 import datetime
+import time
+from pprint import pprint
+
+
 
 
 # 
@@ -32,11 +37,18 @@ condition_map = {
 			"3": { "page": "instructions_2.html", "next": "/coding/0/" },
 		}
 	}, 
+	"validate": {
+		"0" : {
+			"1": { "positive_redirect": "/coding/1", "negative_redirect": "/thanks/" },
+			"2": { "positive_redirect": "/coding/1", "negative_redirect": "/thanks/" },
+			"3": { "positive_redirect": "/coding/1", "negative_redirect": "/thanks/" },
+		}
+	},
 	"coding" : {
 		"0": {
-			"1": { "page": "coding.html", "next": "/coding/1/" },
-			"2": { "page": "coding.html", "next": "/coding/1/" },
-			"3": { "page": "coding.html", "next": "/coding/1/" },	
+			"1": { "page": "coding.html", "next": "/validate/0/" },
+			"2": { "page": "coding.html", "next": "/validate/0/" },
+			"3": { "page": "coding.html", "next": "/validate/0/" },	
 		},
 		"1": {
 			"1": { "page": "coding.html", "next": "/thanks/" },
@@ -196,18 +208,159 @@ def home(request):
 	return render(request, "base.html")
 
 
+
+def make_instance_struct(queryset):
+	ret_dict = {}
+	for instance in queryset:
+		if instance.tweet_id not in ret_dict:
+			ret_dict[instance.tweet_id] = set()
+
+		ret_dict[instance.tweet_id].add(instance.code_id)	
+
+	return ret_dict
+
+
+
+def validate(request, page):
+	"""
+	This attempts to validate some of the tweets
+	"""
+	_start = time.time()
+	c = build_user_cookie(request)
+	print "validate--- (%s)"%(page)
+	print request.user.id
+	print request.user.turkuser.id
+	print "authenticated", request.user.is_authenticated()
+
+	assignment_id = int(c["assignment"])
+	condition_id = int(c["condition"])
+	condition = Condition.objects.get(pk=condition_id)
+	datasets = condition.dataset.all()
+
+	correct = set()
+	all_items = set()
+
+	# verify the page is in range
+	page_num = int(page)
+	if page_num < 0 or page_num >= datasets.count():
+		return HttpResponseBadRequest()
+
+	dataset = datasets[page_num]
+
+	# find the attention checks
+	attention_checks = Tweet.objects.filter(dataset = dataset, attention_check=True)
+	ac_ids = [ac.id for ac in attention_checks]
+	#print "ac_ids: ", repr(ac_ids)
+	#print "condition id: ", condition_id
+	answers = Answer.objects.filter(tweet_id__in=ac_ids, condition=condition)
+	answer_dict = make_instance_struct(answers)
+	#print "answer_dict: ", repr(answer_dict)
+
+	# grab instances
+	instances = CodeInstance.objects.filter(tweet_id__in=ac_ids, assignment=assignment_id)
+	instance_dict = make_instance_struct(instances)
+	#print "instance_dict: ", repr(instance_dict)
+
+	# check each one of the attention checks
+	for ac in ac_ids:
+		# add the attention check to our items list
+		all_items.add(ac)
+
+		answer_set = answer_dict.get(ac, set())
+		instance_set = instance_dict.get(ac,set())
+
+		is_correct = (instance_set == answer_set)
+		if is_correct:
+			correct.add(ac)
+		
+		#print "tweet %d: %s"%(ac, str(is_correct))
+
+
+
+
+	# find duplicates
+	duplicate_tweet_ids = Tweet.objects \
+		.filter(dataset=dataset) \
+		.values("tweet_id") \
+		.annotate(num=Count("tweet_id")) \
+		.order_by() \
+		.filter(num__gt=1)
+
+	#print "dupes: ", duplicate_tweet_ids
+	duplicate_tweet_ids = [t["tweet_id"] for t in duplicate_tweet_ids]
+	#print "dupes: ", duplicate_tweet_ids
+
+	duplicate_tweets = Tweet.objects.filter(dataset=dataset, tweet_id__in=duplicate_tweet_ids)
+	duplicate_ids = [t.id for t in duplicate_tweets]
+
+	dup_instances = CodeInstance.objects.filter(tweet_id__in=duplicate_ids, assignment=assignment_id)
+
+	dup_dict = {}
+	for dt in duplicate_tweets:
+		if dt.tweet_id not in dup_dict:
+			dup_dict[dt.tweet_id] = set()
+		dup_dict[dt.tweet_id].add(dt.id)
+
+	#print "dup dict: ", dup_dict
+
+	# validate the duplicates
+	# this will only do forward comparisons. So each dupe's codes is compared to the last
+	# it does NOT do full pairwise comparisons
+	# so the total # of comparisons will be N-1 (number of dupes - 1)
+	dinst_dict = make_instance_struct(dup_instances)
+	for tid, dup_set in dup_dict.iteritems():
+		last_instance = None
+		last_id = None
+		for id in dup_set:
+			cur_instance = dinst_dict.get(id, set())
+			if last_instance is not None:
+				# add it to the entire set. do not add the first one as it isn't a check
+				all_items.add(id)
+				if cur_instance == last_instance:
+					#print "%d is consistent with %d (%s,%s)"%(
+					#	id, last_id, 
+					#	repr(cur_instance), repr(last_instance))
+					correct.add(id)
+				#else:
+				#	print "%d is INCONSISTENT with %d (%s,%s)"%(
+				#		id, last_id, 
+				#		repr(cur_instance), repr(last_instance))
+			last_instance = cur_instance
+			last_id = id
+
+
+	#print "%d of %d correct"%(len(correct), len(all_items))
+
+
+	
+
+
+	#_end = time.time()
+	#_total_time = _end - _start
+	#print "total_time: ", _total_time
+
+	cnd_map_entry = condition_map["validate"][page][str(condition.id)]
+
+	if len(correct) > (len(all_items)/2):
+		return HttpResponseRedirect(cnd_map_entry["positive_redirect"])
+	else:
+		return HttpResponseRedirect(cnd_map_entry["negative_redirect"])
+
+
 def coding(request, page):
 	c = build_user_cookie(request)
 	print "coding---"
 	print request.user.id
 	print request.user.turkuser.id
 	print "authenticated", request.user.is_authenticated()
-	page = page if page is not None else 0
+	page = int(page) if page is not None else 0
+	print "page: ", page
 	c["page"] = page
 	condition_id = int(c["condition"])
 	condition = Condition.objects.get(pk=condition_id)
-	c["next"] = condition_map["coding"][str(page)][str(condition.id)]["next"]
 	datasets = condition.dataset.all()
+	c["next"] = condition_map["coding"][str(page)][str(condition.id)]["next"]
+	
 	for index, ds in enumerate(datasets):
 		print "#%d, %s"%(index, repr(ds))
 		if index == int(page):

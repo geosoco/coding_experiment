@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r'^instructions/(?P<page>\d+)/$', 'main.views.instructions', name='instructions'),
     url(r'^coding/((?P<page>\d+)/|)$', 'main.views.coding', name='coding'),
     url(r'^thanks/$', 'main.views.thanks', name='thanks'),
+    url(r'^validate/((?P<page>\d+)/|)$', 'main.views.validate', name='validate'),
 )
 
 if settings.DEBUG:

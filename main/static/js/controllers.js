@@ -189,6 +189,7 @@ tweetCodingApp.controller('TweetListCtrl',
 			$scope.selected = idx;
 
 			$location.hash("tweet-" + idx);
+			//$anchorScroll("tweet-" + idx);
 			//console.log("idx: " + idx.toString())
 			//$window.scrollTo(0, $("#tweet-" + (idx+1)).offset().top )
 
@@ -410,22 +411,22 @@ function($scope, $document) {
 		console.dir(event);
 		console.dir(args);
 
-window.twttr = (function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0],
-    t = window.twttr || {};
-  if (d.getElementById(id)) return t;
-  js = d.createElement(s);
-  js.id = id;
-  js.src = "//platform.twitter.com/widgets.js";
-  fjs.parentNode.insertBefore(js, fjs);
- 
-  t._e = [];
-  t.ready = function(f) {
-    t._e.push(f);
-  };
- 
-  return t;
-}(document, "script", "twitter-wjs"));
+		window.twttr = (function(d, s, id) {
+		  var js, fjs = d.getElementsByTagName(s)[0],
+		    t = window.twttr || {};
+		  if (d.getElementById(id)) return t;
+		  js = d.createElement(s);
+		  js.id = id;
+		  js.src = "//platform.twitter.com/widgets.js";
+		  fjs.parentNode.insertBefore(js, fjs);
+		 
+		  t._e = [];
+		  t.ready = function(f) {
+		    t._e.push(f);
+		  };
+		 
+		  return t;
+		}(document, "script", "twitter-wjs"));
 
 		//twttr.widgets.load();
 		//$document[0].body.innerHTML += "<script async src=\"//platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>";

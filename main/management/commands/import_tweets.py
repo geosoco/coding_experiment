@@ -108,6 +108,13 @@ class Command(BaseCommand):
 								tweet=tweet_obj,
 								code=code_obj)
 							val_codeinstance.save()
+				else:
+					if obj.get('attention_check', ''):
+						answer = Answer(
+								condition=condition, 
+								tweet=tweet_obj,
+								code=None)
+							answer.save()
 
 
 

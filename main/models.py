@@ -106,7 +106,7 @@ class Condition(models.Model):
 class Answer(models.Model):
 	condition = models.ForeignKey(Condition)
 	tweet = models.ForeignKey(Tweet)
-	code = models.ForeignKey(Code)
+	code = models.ForeignKey(Code, null=True, blank=True)
 
 
 
