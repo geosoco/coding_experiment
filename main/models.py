@@ -8,7 +8,7 @@ class TurkUser(models.Model):
 	initial_browser_details = models.TextField(blank=True, null=True)
 	final_browser_details = models.TextField(blank=True, null=True)
 
-	start_time = models.DateTimeField(auto_now=True)
+	start_time = models.DateTimeField(auto_now_add=True)
 	finish_time = models.DateTimeField(blank=True, null=True)
 
 	completion_code = models.CharField(max_length=64, blank=True, null=True)
@@ -80,6 +80,7 @@ class Tweet(models.Model):
 class Study(models.Model):
 	name = models.CharField(max_length=256)
 	description = models.TextField(null=True, blank=True)
+	last_condition = models.IntegerField(null=True, blank=True)
 
 	def __str__(self):
 		return "%s (%d)"%(self.name, self.id)

@@ -20,10 +20,10 @@ from pprint import pprint
 
 # 
 # conditions
-# 	0 - All Codes
-#	1 - First Level only
-#	2 - Second level only
-#	3 - (later: uncertainty yes/no)
+# 	1 - All Codes
+#	2 - First Level only
+#	3 - Second level only
+#	4 - (later: uncertainty yes/no)
 
 
 #
@@ -34,16 +34,31 @@ from pprint import pprint
 
 condition_map = {
 	"instructions" : { 
-		"0" : {
-			"1": { "page": "instructions.html", "next": "/pre_survey/" },
-			"2": { "page": "instructions_1.html", "next": "/pre_survey/" },
-			"3": { "page": "instructions_2.html", "next": "/pre_survey/" },
+		"1" : {
+			"1": { "page": "instructions/instructions1-1.html", "next": "/instructions/2/" },
+			"2": { "page": "instructions/instructions1-1.html", "next": "/instructions/2/" },
+			"3": { "page": "instructions/instructions1-1.html", "next": "/instructions/2/" },
+		},
+		"2" : {
+			"1": { "page": "instructions/instructions2-1.html", "next": "/instructions/3/" },
+			"2": { "page": "instructions/instructions2-1.html", "next": "/instructions/3/" },
+			"3": { "page": "instructions/instructions2-1.html", "next": "/instructions/3/" },
+		},
+		"3" : {
+			"1": { "page": "instructions/instructions3-1.html", "next": "/instructions/4/" },
+			"2": { "page": "instructions/instructions3-2.html", "next": "/instructions/4/" },
+			"3": { "page": "instructions/instructions3-3.html", "next": "/instructions/4/" },
+		},
+		"4" : {
+			"1": { "page": "instructions/instructions4-1.html", "next": "/instructioncheck/" },
+			"2": { "page": "instructions/instructions4-2.html", "next": "/instructioncheck/" },
+			"3": { "page": "instructions/instructions4-3.html", "next": "/instructioncheck/" },
 		}
 	}, 
 	"pre_survey": {
-		"1": { "next": "/coding/0/" },
-		"2": { "next": "/coding/0/" },
-		"3": { "next": "/coding/0/" },
+		"1": { "next": "/instructions/1/" },
+		"2": { "next": "/instructions/1/" },
+		"3": { "next": "/instructions/1/" },
 	},
 	"post_survey": {
 		"1": { "next": "/thanks/" },
@@ -52,23 +67,28 @@ condition_map = {
 	},
 	"validate": {
 		"0" : {
-			"1": { "positive_redirect": "/coding/1", "negative_redirect": "/post_survey/" },
-			"2": { "positive_redirect": "/coding/1", "negative_redirect": "/post_survey/" },
-			"3": { "positive_redirect": "/coding/1", "negative_redirect": "/post_survey/" },
+			"1": { "positive_redirect": "/pause/", "negative_redirect": "/survey/post/" },
+			"2": { "positive_redirect": "/pause/", "negative_redirect": "/survey/post/" },
+			"3": { "positive_redirect": "/pause/", "negative_redirect": "/survey/post/" },
 		}
 	},
 	"coding" : {
 		"0": {
-			"1": { "page": "coding.html", "next": "/validate/0/" },
-			"2": { "page": "coding.html", "next": "/validate/0/" },
-			"3": { "page": "coding.html", "next": "/validate/0/" },	
+			"1": { "page": "coding.html", "next": "/validate/0/", "help": "instructions/summary1.html" },
+			"2": { "page": "coding.html", "next": "/validate/0/", "help": "instructions/summary2.html" },
+			"3": { "page": "coding.html", "next": "/validate/0/", "help": "instructions/summary3.html" },	
 		},
 		"1": {
-			"1": { "page": "coding.html", "next": "/post_survey/" },
-			"2": { "page": "coding.html", "next": "/post_survey/" },
-			"3": { "page": "coding.html", "next": "/post_survey/" },	
+			"1": { "page": "coding.html", "next": "/survey/post/", "help": "instructions/summary1.html" },
+			"2": { "page": "coding.html", "next": "/survey/post/", "help": "instructions/summary2.html" },
+			"3": { "page": "coding.html", "next": "/survey/post/", "help": "instructions/summary3.html" },	
 		}
 
+	},
+	"bonus_check" : {
+		"1": { "yes": "/coding/1/", "no": "/survey/post/"},
+		"2": { "yes": "/coding/1/", "no": "/survey/post/"},
+		"3": { "yes": "/coding/1/", "no": "/survey/post/"},
 	},
 }
 
@@ -172,11 +192,14 @@ def create_user(request, cnd=None):
 	#print "turk_user saved"
 
 	# find condition
-	all_conditions = Condition.objects.filter(study_id=1)
+	study = Study.objects.get(id=1)
+	all_conditions = Condition.objects.filter(study=study)
 	print "got %d conditions"%(all_conditions.count())
 
+
 	if cnd is None:
-		rnd = datetime.datetime.now().second % (all_conditions.count()+1)
+		#rnd = datetime.datetime.now().second % (all_conditions.count()+1)
+		rnd = random.randint(0,10*(all_conditions.count()-1)) // 10
 		print "Assinging user to ", rnd
 		condition = all_conditions[rnd]
 	else:
@@ -362,27 +385,30 @@ def validate(request, page):
 
 def coding(request, page):
 	c = build_user_cookie(request)
-	print "coding---"
-	print request.user.id
-	print request.user.turkuser.id
-	print "authenticated", request.user.is_authenticated()
+	#print "coding---"
+	#print request.user.id
+	#print request.user.turkuser.id
+	#print "authenticated", request.user.is_authenticated()
 	page = int(page) if page is not None else 0
-	print "page: ", page
+	#print "page: ", page
 	c["page"] = page
+
 	condition_id = int(c["condition"])
 	condition = Condition.objects.get(pk=condition_id)
 	datasets = condition.dataset.all()
 	c["next"] = condition_map["coding"][str(page)][str(condition.id)]["next"]
+	c["help"] = condition_map["coding"][str(page)][str(condition.id)]["help"]
 	
 	for index, ds in enumerate(datasets):
-		print "#%d, %s"%(index, repr(ds))
+		#print "#%d, %s"%(index, repr(ds))
 		if index == int(page):
-			print "got index: ", index
+			#print "got index: ", index
 			c["dataset_id"] = ds.id
 			break
 	
-	print condition.name, condition.id
-	print condition_map["coding"][str(page)][str(condition.id)]["next"]
+	#print condition.name, condition.id
+	#print condition_map["coding"][str(page)][str(condition.id)]["next"]
+	#print condition_map["coding"][str(page)][str(condition.id)]["help"]
 	return render(request, "base.html" ,c)
 
 
@@ -397,7 +423,7 @@ def landing(request, cnd=None):
 		#c["browser_info"] = request.POST["browser_info"]
 
 		#return render(request, "landing.html", c)
-		return HttpResponseRedirect(reverse('instructions', kwargs=({"page": "0"})))
+		return HttpResponseRedirect(reverse('pre_survey'))
 	else:
 		c = {}
 		c.update(csrf(request))
@@ -405,7 +431,7 @@ def landing(request, cnd=None):
 	return render(request, "landing.html", c)
 
 
-def instructions(request, page):
+def instructions(request, page = 1):
 
 	#print "instructions!"
 
@@ -445,10 +471,13 @@ def pre_survey(request):
 	c.update(csrf(request))
 
 	if request.method == "POST":
+		condition = c['condition']
 		ps = PreSurvey(user=request.user)
 		form = PreSurveyForm(request.POST, instance=ps)
 		if form.is_valid():
 			ps.save()
+			print "pre_survey success redirection ----"
+			print "redirecting to: ", condition_map["pre_survey"][str(condition)]["next"]
 			return HttpResponseRedirect( condition_map["pre_survey"][str(condition)]["next"] )
 	else:
 		form = PreSurveyForm()
@@ -492,3 +521,13 @@ class InstructionCheck(CreateView):
 
 		return HttpResponseRedirect(self.get_success_url())
 
+
+
+def bonus_check(request):
+	c = build_user_cookie(request)
+	condition = c['condition']
+
+	c['yes'] = condition_map["bonus_check"][str(condition)]["yes"]
+	c['no'] = condition_map["bonus_check"][str(condition)]["no"]
+
+	return render(request, "bonus_check.html", c)

@@ -18,7 +18,8 @@ urlpatterns = patterns('',
     url(r'^survey/pre/$', 'main.views.pre_survey', name='pre_survey'),
     url(r'^survey/post/$', 'main.views.post_survey', name='post_survey'),
     url(r'^reqcheck/$', 'main.views.req_check', name='req_check'),
-    url(r'^instructioncheck/$', InstructionCheck.as_view(), name='instruction_check')
+    url(r'^instructioncheck/$', InstructionCheck.as_view(), name='instruction_check'),
+    url(r'^pause/$', 'main.views.bonus_check', name='bonus_check')
 )
 
 if settings.DEBUG:

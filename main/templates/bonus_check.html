@@ -1,0 +1,35 @@
+{% extends "static_base.html" %}
+{% load staticfiles %}
+
+{% block head_style %}
+	body { background: #d8e0e8; }
+	.content { background: #fff; color: #333; margin: 20px; padding: 40px; border-radius: 3px; border: 1px solid #ccc;}
+	form { margin-top: 50px;}
+{% endblock %}
+
+{% block content %}
+			<div class="row">
+				<div class="col-md-12">
+					<h1>Good Job</h1>
+					<p>You have successfully completed this task, and earned your payment. 
+
+					<div class="alert alert-success">
+						<p><strong>Congratulations!</strong></p>
+						<p>You performed very well, and we'd like you to <strong>label another 45 for a bonus amount ($3).</strong>  If you're interested, please click the yes button.</p>
+					</div>
+				</div>
+			</div>
+			<div class="row" style="margin-top: 50px;">
+				<div class="col-md-2 col-md-offset-3">
+					<a class="btn btn-primary" href="{{yes}}">Yes, I want the bonus!</a>
+				</div>
+				<div class="col-md-2 col-md-offset-1">
+					<a class="btn btn-primary" href="{{no}}">No thank you</a>
+				</div>
+			</div>
+
+
+{% endblock %}
+
+
+

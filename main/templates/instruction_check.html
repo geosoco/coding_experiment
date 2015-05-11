@@ -25,7 +25,7 @@
 	<form action="." method="post">
 		<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
         {{ form.media }}
-        {% if form.errors %}
+        {% if form.non_field_errors %}
             <div class="alert alert-error">
                 <ul>
                     {% for error in form.non_field_errors %}
@@ -37,15 +37,15 @@
 		<div class="form-group">
 			<label for="id_rumor_description">Briefly describe the rumor you are about to code.</label>
 			<textarea id="id_rumor_description" name="rumor_description" rows="3'" class="form-control" placeholder=""></textarea>
-			{% if field.rumor_description.errors %}
-				<div class="alert alert-danger" role="alert">{{ field.rumor_description.errors.as_text }}</div>
+			{% if form.rumor_description.errors %}
+				<div class="alert alert-danger" role="alert">{{ form.rumor_description.errors.as_text }}</div>
 			{% endif %}
 		</div>
 		<div class="form-group">
 			<label for="id_which_codes">Which labels are you going to apply?</label>
 			<textarea id="id_which_codes" name="which_codes" rows="3" class="form-control" placeholder=""></textarea>
-			{% if field.which_codes.errors %}
-				<div class="alert alert-danger" role="alert">{{ field.which_codes.errors.as_text }}</div>
+			{% if form.which_codes.errors %}
+				<div class="alert alert-danger" role="alert">{{ form.which_codes.errors.as_text }}</div>
 			{% endif %}
 		</div>
 

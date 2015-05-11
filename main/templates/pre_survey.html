@@ -52,7 +52,7 @@
 			{% endif %}
 		</div>
 		<div class="form-group">
-			<label for="id_zip_code">What is your current zip code or postal code?</label>
+			<label for="id_zip_code">What is your current postal code, state, or province? (You may specify any you feel comfortable with) </label>
 			<input id="id_zip_code" name="zip_code" type="text" class="form-control" placeholder="">
 			{% if field.zip_code.errors %}
 				<div class="alert alert-danger" role="alert">{{ field.zip_code.errors.as_text }}</div>

@@ -1,0 +1,72 @@
+{% extends "instructions/summary_base.html" %}
+{% load staticfiles %}
+
+
+{% block help_content %}
+			<div class="row">
+				<div class="col-md-12">
+					<h1>Instructions</h1>
+					<p>You will be applying labels to 45 tweets about a rumor from the "Sydney Siege" hostage situation. In this case, rumor simply means unsubstantiated information, and it may be true or false.  
+					</p>
+
+					<h2>The Rumor</h2>
+					<h3>Suicide Bomber / Bomb belt, backpack, or vest</h3>
+					<p>This rumor claims someone was a suicide bomber or that they had an explosive device in backpacks, vests, or belts.</p>
+
+					<h2>Tweets</h2>
+					<p>Each of these tweets will be embedded. Some will have pictures, and some will be part of a discussion. You should use all available information for coding, but <strong>focus on the bottom tweet for applying your codes.</strong>
+					</p>
+					<img src="{% static "img/reply-tweet-example.jpg" %}">
+
+
+					<h2>Navigating Tweets</h2>
+					<div class="row">
+						<div class="col-md-5">
+							<h4>Keyboard</h4>
+							<p>You can navigate between tweets using the keyboard arrow keys</p>
+							<p><span class="keyboard-btn">&uarr;</span> - Previous Tweet</p>
+							<p><span class="keyboard-btn">&darr;</span> - Next Tweet</p>
+						</div>
+						<div class="col-md-5 col-md-offset-1">
+							<h4>Mouse</h4>
+							<p>Two buttons can be found to the right of the tweet to navigate to the previous and next tweet.</p>
+							<p><a href="#" class="btn btn-default" data-toggle="tooltip" data-placement="left" aria-label="Previous Item" title="Previous Item"><span class="glyphicon glyphicon-chevron-up"></span></a> - Previous Tweet</p>
+							<p><a href="#" class="btn btn-default" data-toggle="tooltip" data-placement="left" aria-label="Next Item" title="Next Item"><span class="glyphicon glyphicon-chevron-down"></span></a> - Next Tweet</p>
+						</div>
+					</div>
+
+					<h2>Applying Labels</h2>
+					<p>To apply / remove labels, you can use the keyboard key <span class="keyboard-btn">4</span>. Press the button once to add the code and a second time if you want remove it. </p>
+
+					<h3>Uncertainty</h3>
+					<p>This label should be applied to every tweet that expresses uncertainty about the information.</p>
+
+					<table class="table" style="margin: 20px;">
+						<thead>
+							<tr>
+								<th>Label</th>
+								<th>Keyboard</th>
+								<th>Definition</th>
+								<th>Example</th>
+							</tr>						
+						</thead>
+						<tbody>
+							<tr>
+								<td><span class="label label-Uncertainty">Uncertainty</span></td>
+								<td><span class="keyboard-btn">4</span></td>
+								<td>This tweet expresses some level of uncertainty about the story. This refers to a property of the tweet itself, not your uncertainty. In other words, the tweet suggests that the veracity of the story is not 100% resolved. (This code refers to a relationship between the tweet’s author and the rumor/story - i.e. the tweet author expresses uncertainty in the tweet). [Not me, them]
+								</td>								
+								<td>Is no one else concerned there might be a bomb in that backpack? #Sydney</td>
+							</tr>
+						</tbody>
+					</table>
+
+				</div>
+			</div>
+
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+{% endblock %}
+
+
+
+
