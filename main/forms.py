@@ -13,7 +13,7 @@ class PreSurveyForm(ModelForm):
 
 	class Meta:
 		model = PreSurvey
-		exclude = ('user',)
+		exclude = ('user','time',)
 
 
 class PostSurveyForm(ModelForm):
@@ -25,7 +25,7 @@ class PostSurveyForm(ModelForm):
 
 	class Meta:
 		model = PostSurvey
-		exclude = ('user',)
+		exclude = ('user','time',)
 
 
 class InstructionCheckForm(ModelForm):
@@ -37,4 +37,4 @@ class InstructionCheckForm(ModelForm):
 
 	class Meta:
 		model = InstructionCheck
-		exclude = ('user',)
+		exclude = ('user','time',)

@@ -70,7 +70,12 @@ condition_map = {
 			"1": { "positive_redirect": "/pause/", "negative_redirect": "/survey/post/" },
 			"2": { "positive_redirect": "/pause/", "negative_redirect": "/survey/post/" },
 			"3": { "positive_redirect": "/pause/", "negative_redirect": "/survey/post/" },
-		}
+		},
+		"1" : {
+			"1": { "positive_redirect": "/survey/post/", "negative_redirect": "/survey/post/" },
+			"2": { "positive_redirect": "/survey/post/", "negative_redirect": "/survey/post/" },
+			"3": { "positive_redirect": "/survey/post/", "negative_redirect": "/survey/post/" },
+		},		
 	},
 	"coding" : {
 		"0": {
@@ -79,9 +84,9 @@ condition_map = {
 			"3": { "page": "coding.html", "next": "/validate/0/", "help": "instructions/summary3.html" },	
 		},
 		"1": {
-			"1": { "page": "coding.html", "next": "/survey/post/", "help": "instructions/summary1.html" },
-			"2": { "page": "coding.html", "next": "/survey/post/", "help": "instructions/summary2.html" },
-			"3": { "page": "coding.html", "next": "/survey/post/", "help": "instructions/summary3.html" },	
+			"1": { "page": "coding.html", "next": "/validate/1/", "help": "instructions/summary1.html" },
+			"2": { "page": "coding.html", "next": "/validate/1/", "help": "instructions/summary2.html" },
+			"3": { "page": "coding.html", "next": "/validate/1/", "help": "instructions/summary3.html" },	
 		}
 
 	},
@@ -293,7 +298,7 @@ def validate(request, page):
 	#print "answer_dict: ", repr(answer_dict)
 
 	# grab instances
-	instances = CodeInstance.objects.filter(tweet_id__in=ac_ids, assignment=assignment_id)
+	instances = CodeInstance.objects.filter(tweet_id__in=ac_ids, assignment=assignment_id, deleted=False)
 	instance_dict = make_instance_struct(instances)
 	#print "instance_dict: ", repr(instance_dict)
 
@@ -308,7 +313,19 @@ def validate(request, page):
 		is_correct = (instance_set == answer_set)
 		if is_correct:
 			correct.add(ac)
-		
+
+		uvi = UserValidatedInstance(
+				user = request.user,
+				kind = UserValidatedInstance.ATTENTION_CHECK,
+				correct = is_correct,
+				tweet_1_id = ac,
+				tweet_2_id = None,
+				tweet_1_codes = "answers: " + repr(answer_dict),
+				tweet_2_codes = "instances: " + repr(instance_dict)
+			)
+		uvi.save()
+
+
 		print "tweet %d: %s"%(ac, str(is_correct))
 
 
@@ -329,7 +346,7 @@ def validate(request, page):
 	duplicate_tweets = Tweet.objects.filter(dataset=dataset, tweet_id__in=duplicate_tweet_ids)
 	duplicate_ids = [t.id for t in duplicate_tweets]
 
-	dup_instances = CodeInstance.objects.filter(tweet_id__in=duplicate_ids, assignment=assignment_id)
+	dup_instances = CodeInstance.objects.filter(tweet_id__in=duplicate_ids, assignment=assignment_id, deleted=False)
 
 	dup_dict = {}
 	for dt in duplicate_tweets:
@@ -352,7 +369,8 @@ def validate(request, page):
 			if last_instance is not None:
 				# add it to the entire set. do not add the first one as it isn't a check
 				all_items.add(id)
-				if cur_instance == last_instance:
+				is_consistent = (cur_instance == last_instance)
+				if is_consistent:
 					print "%d is consistent with %d (%s,%s)"%(
 						id, last_id, 
 						repr(cur_instance), repr(last_instance))
@@ -361,6 +379,16 @@ def validate(request, page):
 					print "%d is INCONSISTENT with %d (%s,%s)"%(
 						id, last_id, 
 						repr(cur_instance), repr(last_instance))
+				uvi = UserValidatedInstance(
+					user=request.user,
+					kind=UserValidatedInstance.DUPLICATE_CHECK,
+					correct=is_consistent,
+					tweet_1_id=last_id,
+					tweet_2_id=id,
+					tweet_1_codes=repr(last_instance),
+					tweet_2_codes=repr(cur_instance)
+					)
+				uvi.save()
 			last_instance = cur_instance
 			last_id = id
 
@@ -377,7 +405,7 @@ def validate(request, page):
 
 	cnd_map_entry = condition_map["validate"][page][str(condition.id)]
 
-	if len(correct) > (len(all_items)/2):
+	if len(correct) > (len(all_items)//2):
 		return HttpResponseRedirect(cnd_map_entry["positive_redirect"])
 	else:
 		return HttpResponseRedirect(cnd_map_entry["negative_redirect"])
@@ -406,6 +434,11 @@ def coding(request, page):
 			c["dataset_id"] = ds.id
 			break
 	
+	# look for validations on this dataset
+	uvis = UserValidatedInstance.objects.filter(user=request.user, tweet_1__dataset_id=ds.id)
+	if uvis is not None and uvis.count() > 0:
+		return HttpResponseRedirect(c["next"])
+
 	#print condition.name, condition.id
 	#print condition_map["coding"][str(page)][str(condition.id)]["next"]
 	#print condition_map["coding"][str(page)][str(condition.id)]["help"]
@@ -476,9 +509,14 @@ def pre_survey(request):
 		form = PreSurveyForm(request.POST, instance=ps)
 		if form.is_valid():
 			ps.save()
-			print "pre_survey success redirection ----"
-			print "redirecting to: ", condition_map["pre_survey"][str(condition)]["next"]
+			#print "pre_survey success redirection ----"
+			#print "redirecting to: ", condition_map["pre_survey"][str(condition)]["next"]
 			return HttpResponseRedirect( condition_map["pre_survey"][str(condition)]["next"] )
+		else:
+			#print "not valid!"
+			#print "form errors: "
+			print form.errors.as_json()
+
 	else:
 		form = PreSurveyForm()
 
