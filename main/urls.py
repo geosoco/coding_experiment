@@ -15,6 +15,10 @@ urlpatterns = patterns('',
     url(r'^coding/((?P<page>\d+)/|)$', 'main.views.coding', name='coding'),
     url(r'^thanks/$', 'main.views.thanks', name='thanks'),
     url(r'^validate/((?P<page>\d+)/|)$', 'main.views.validate', name='validate'),
+    url(r'^survey/pre/$', 'main.views.pre_survey', name='pre_survey'),
+    url(r'^survey/post/$', 'main.views.post_survey', name='post_survey'),
+    url(r'^reqcheck/$', 'main.views.req_check', name='req_check'),
+    url(r'^instructioncheck/$', InstructionCheck.as_view(), name='instruction_check')
 )
 
 if settings.DEBUG:

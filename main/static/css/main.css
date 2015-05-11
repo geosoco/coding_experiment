@@ -17,3 +17,9 @@
 
 .EmbeddedTweet .EmbeddedTweet-acestor { opacity: 0.8; }
 .EmbeddedTweet .EmbeddedTweet-tweet { box-shadow: 0px 0px 0px 5px #c80 inset; }
+
+
+
+.success { color: green; }
+.fail { color: red; font-weight: bold; font-size: 125%;}
+span.spinner { display: inline-block; margin: 0px 10px; width: 16px; height: 16px; position: relative;}

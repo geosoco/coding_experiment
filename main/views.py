@@ -1,15 +1,18 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
+from django.template.context_processors import csrf
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseNotFound,  HttpResponseBadRequest
 from django.core.urlresolvers import reverse
 from django.db.models import Count
+from django.views.generic.edit import CreateView
 #from django.template.context_processors import csrf
 from models import *
 import string
 import random
 import datetime
 import time
+from forms import *
 from pprint import pprint
 
 
@@ -32,16 +35,26 @@ from pprint import pprint
 condition_map = {
 	"instructions" : { 
 		"0" : {
-			"1": { "page": "instructions.html", "next": "/coding/0/" },
-			"2": { "page": "instructions_1.html", "next": "/coding/0/" },
-			"3": { "page": "instructions_2.html", "next": "/coding/0/" },
+			"1": { "page": "instructions.html", "next": "/pre_survey/" },
+			"2": { "page": "instructions_1.html", "next": "/pre_survey/" },
+			"3": { "page": "instructions_2.html", "next": "/pre_survey/" },
 		}
 	}, 
+	"pre_survey": {
+		"1": { "next": "/coding/0/" },
+		"2": { "next": "/coding/0/" },
+		"3": { "next": "/coding/0/" },
+	},
+	"post_survey": {
+		"1": { "next": "/thanks/" },
+		"2": { "next": "/thanks/" },
+		"3": { "next": "/thanks/" },
+	},
 	"validate": {
 		"0" : {
-			"1": { "positive_redirect": "/coding/1", "negative_redirect": "/thanks/" },
-			"2": { "positive_redirect": "/coding/1", "negative_redirect": "/thanks/" },
-			"3": { "positive_redirect": "/coding/1", "negative_redirect": "/thanks/" },
+			"1": { "positive_redirect": "/coding/1", "negative_redirect": "/post_survey/" },
+			"2": { "positive_redirect": "/coding/1", "negative_redirect": "/post_survey/" },
+			"3": { "positive_redirect": "/coding/1", "negative_redirect": "/post_survey/" },
 		}
 	},
 	"coding" : {
@@ -51,9 +64,9 @@ condition_map = {
 			"3": { "page": "coding.html", "next": "/validate/0/" },	
 		},
 		"1": {
-			"1": { "page": "coding.html", "next": "/thanks/" },
-			"2": { "page": "coding.html", "next": "/thanks/" },
-			"3": { "page": "coding.html", "next": "/thanks/" },	
+			"1": { "page": "coding.html", "next": "/post_survey/" },
+			"2": { "page": "coding.html", "next": "/post_survey/" },
+			"3": { "page": "coding.html", "next": "/post_survey/" },	
 		}
 
 	},
@@ -273,7 +286,7 @@ def validate(request, page):
 		if is_correct:
 			correct.add(ac)
 		
-		#print "tweet %d: %s"%(ac, str(is_correct))
+		print "tweet %d: %s"%(ac, str(is_correct))
 
 
 
@@ -317,19 +330,19 @@ def validate(request, page):
 				# add it to the entire set. do not add the first one as it isn't a check
 				all_items.add(id)
 				if cur_instance == last_instance:
-					#print "%d is consistent with %d (%s,%s)"%(
-					#	id, last_id, 
-					#	repr(cur_instance), repr(last_instance))
+					print "%d is consistent with %d (%s,%s)"%(
+						id, last_id, 
+						repr(cur_instance), repr(last_instance))
 					correct.add(id)
-				#else:
-				#	print "%d is INCONSISTENT with %d (%s,%s)"%(
-				#		id, last_id, 
-				#		repr(cur_instance), repr(last_instance))
+				else:
+					print "%d is INCONSISTENT with %d (%s,%s)"%(
+						id, last_id, 
+						repr(cur_instance), repr(last_instance))
 			last_instance = cur_instance
 			last_id = id
 
 
-	#print "%d of %d correct"%(len(correct), len(all_items))
+	print "%d of %d correct"%(len(correct), len(all_items))
 
 
 	
@@ -387,6 +400,7 @@ def landing(request, cnd=None):
 		return HttpResponseRedirect(reverse('instructions', kwargs=({"page": "0"})))
 	else:
 		c = {}
+		c.update(csrf(request))
 
 	return render(request, "landing.html", c)
 
@@ -425,4 +439,56 @@ def thanks(request):
 	print repr(c)
 	return render(request, "thanks.html", c)
 
+
+def pre_survey(request):
+	c = build_user_cookie(request)
+	c.update(csrf(request))
+
+	if request.method == "POST":
+		ps = PreSurvey(user=request.user)
+		form = PreSurveyForm(request.POST, instance=ps)
+		if form.is_valid():
+			ps.save()
+			return HttpResponseRedirect( condition_map["pre_survey"][str(condition)]["next"] )
+	else:
+		form = PreSurveyForm()
+
+	c['form'] = form
+
+	return render(request, "pre_survey.html", c)
+
+def post_survey(request):
+	c = build_user_cookie(request)
+	c.update(csrf(request))
+
+	if request.method == "POST":
+		condition = c['condition']
+		ps = PostSurvey(user=request.user)
+		form = PostSurveyForm(request.POST, instance=ps)
+		if form.is_valid():
+			ps.save()
+			return HttpResponseRedirect( condition_map["post_survey"][str(condition)]["next"] )
+	else:
+		form = PostSurveyForm()
+
+	c['form'] = form
+
+	return render(request, "post_survey.html", c)
+
+
+def req_check(request):
+	return render(request, "req_check.html")
+
+
+class InstructionCheck(CreateView):
+	template_name = 'instruction_check.html'
+	form_class = InstructionCheckForm
+	success_url = '/coding/0/'
+
+	def form_valid(self, form):
+		self.object = form.save(commit=False)
+		self.object.user = self.request.user
+		self.object.save()
+
+		return HttpResponseRedirect(self.get_success_url())
 

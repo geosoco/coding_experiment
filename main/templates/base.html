@@ -14,7 +14,7 @@
 	.item-row.selected { background: #fff; color: #333; border-color: #fc0;}
 	.code.label { font-size: 14px; height: 25px;}
 
-	.tweet-list { margin-top: 50px; font-size: 16px;}
+	.tweet-list { font-size: 16px;}
 
 	.code-list-primary li, .code-list-secondary li { display: inline-block; margin-left: 10px;}
 	.code-list-primary, .code-list-secondary {  line-height: 35px; height: 35px; }
@@ -94,6 +94,7 @@
 				{% endverbatim %}
 				<li class="row item-row next-row" >
 					<a class="btn btn-primary pull-right" href="{{next}}" ng-class="{'disabled': incomplete() }">Submit</a>
+					<span class="pull-right" style="margin-right:25px;" ng-hide="{{incomplete}}">Have you looked at all the tweets?</span>
 				</li>
 			</ul>
 			<div ng-switch="tweets && tweets.length > 0">

@@ -153,10 +153,11 @@ class PreSurvey(models.Model):
 	age = models.IntegerField(blank=True, null=True)
 	country = models.IntegerField(blank=True, null=True)
 	zip_code = models.IntegerField(blank=True, null=True)
-	twitter_familiarity = models.IntegerField(blank=True, null=True)
+	rumor_familiarity = models.IntegerField(blank=True, null=True)
+	twitter_usage = models.IntegerField(blank=True, null=True)
 	english_reading_comfort = models.IntegerField(blank=True, null=True)
-	english_speaking_comfort = models.IntegerField(blank=True, null=True)
-	overall_english_comfort = models.IntegerField(blank=True, null=True)
+	english_sarcasm_comfort = models.IntegerField(blank=True, null=True)
+
 
 class PostSurvey(models.Model):
 	"""
@@ -167,4 +168,11 @@ class PostSurvey(models.Model):
 	task_value = models.IntegerField(blank=True, null=True)
 	suggestions = models.TextField(blank=True, null=True)
 
+
+class InstructionCheck(models.Model):
+	"""
+	"""
+	user = models.ForeignKey(User)
+	rumor_description = models.TextField(blank=False, null=True)
+	which_codes = models.TextField(blank=False, null=True)	
 

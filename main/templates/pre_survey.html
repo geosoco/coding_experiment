@@ -1,0 +1,200 @@
+{% extends "static_base.html" %}
+{% load staticfiles %}
+
+{% block head_style %}
+	body { background: #abc; }
+	.content { background: #fff; color: #333; margin: 20px; padding: 40px; border-radius: 8px;}
+	form { margin-top: 50px;}
+	p { font-size: 16px; }
+	label { font-size: 130%; }
+	.form-group:not(:first-child) { margin-top: 50px; }
+	table { font-size: 16px; table-layout: fixed;}
+	table.radio_btns { width: 95%; font-size: 90%; margin-left: 5%; cell-padding: 5px;}
+	table.radio_btns th label { font-weight: normal; }
+	table.radio_btns th { vertical-align: bottom; }
+	table.radio_btns th, table.radio_btns td { text-align: center }
+	table th:first-child { width: 150px; }
+	table.radio_btns td, table.radio_btns th { padding: 2px 10px; }
+
+	button[type='submit'] { margin-top: 70px; }
+
+{% endblock %}
+
+{% block content %}
+	<h1>Short Demographic Survey</h1>
+	<div class="alert alert-info" role="alert">
+		<p>This survey is <strong>optional</strong>, but your information will help us design better tasks in the future. </p>
+	</div>
+	<form action="." method="post">
+		<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        {{ form.media }}
+        {% if form.errors %}
+            <div class="alert alert-error">
+                <ul>
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}		
+		<div class="form-group">
+			<label for="id_age">What is your current age (in years)?</label>
+			<input id="id_age" name="age" type="text" class="form-control" placeholder="">
+			{% if field.age.errors %}
+				<div class="alert alert-danger" role="alert">{{ field.age.errors.as_text }}</div>
+			{% endif %}
+		</div>
+		<div class="form-group">
+			<label for="id_country">What country do you currently live in?</label>
+			<input id="id_country" name="country" type="text" class="form-control" placeholder="">
+			{% if field.country.errors %}
+				<div class="alert alert-danger" role="alert">{{ field.country.errors.as_text }}</div>
+			{% endif %}
+		</div>
+		<div class="form-group">
+			<label for="id_zip_code">What is your current zip code or postal code?</label>
+			<input id="id_zip_code" name="zip_code" type="text" class="form-control" placeholder="">
+			{% if field.zip_code.errors %}
+				<div class="alert alert-danger" role="alert">{{ field.zip_code.errors.as_text }}</div>
+			{% endif %}
+		</div>
+		<div class="form-group">
+			<label for="id_rumor_familiarity">How familiar with the &quot;Sydney Siege&quot; rumor? (Below is a brief definition)</label>
+			<blockquote>
+The &quot;Sydney Siege&quot; was a hostage event which occurred in December of 2014. A gunmen took several people hostage in a cafe in Sydney, Australia.
+			</blockquote>			
+			<table class="radio_btns">
+				<thead></thead>
+				<tbody>
+					<tr>
+						<th><label for="rf_0">Never heard of it</label></th>
+						<th><label for="rf_1">A little familiar</label></th>
+						<th><label for="rf_2">Somewhat familiar</label></th>
+						<th><label for="rf_3">Very familiar</label></th>
+						<th><label for="rf_4">I know a lot about it</label></th>
+					</tr>
+					<tr>
+						<td><input type="radio" name="rumor_familiarity" id="rf_0" value="0"></td>
+						<td><input type="radio" name="rumor_familiarity" id="rf_1" value="1"></td>
+						<td><input type="radio" name="rumor_familiarity" id="rf_2" value="2"></td>
+						<td><input type="radio" name="rumor_familiarity" id="rf_3" value="3"></td>
+						<td><input type="radio" name="rumor_familiarity" id="rf_4" value="4"></td>
+					</tr>
+				</tbody>
+			</table>
+			{% if field.rumor_familiarity.errors %}
+				<div class="alert alert-danger" role="alert">{{ field.rumor_familiarity.errors.as_text }}</div>
+			{% endif %}
+		</div>
+		<div class="form-group">
+			<label for="id_twitter_usage">In the last month, how many times have you read something from Twitter?</label>
+			<table class="radio_btns">
+				<thead></thead>
+				<tbody>
+					<tr>
+						<th><label for="tw_0">I've never read from twitter</label></th>
+						<th><label for="tw_1">None in the last month</label></th>
+						<th><label for="tw_2">1-2 times</label></th>
+						<th><label for="tw_3">3-4 times</label></th>
+						<th><label for="tw_4">5-6</label></th>
+						<th><label for="tw_5">7-8</label></th>
+						<th><label for="tw_6">9-10</label></th>
+						<th><label for="tw_7">More than 10</label></th>
+					</tr>
+					<tr>
+						<td><input type="radio" name="twitter_usage" id="tw_0" value="0"></td>
+						<td><input type="radio" name="twitter_usage" id="tw_1" value="1"></td>
+						<td><input type="radio" name="twitter_usage" id="tw_2" value="2"></td>
+						<td><input type="radio" name="twitter_usage" id="tw_3" value="3"></td>
+						<td><input type="radio" name="twitter_usage" id="tw_4" value="4"></td>
+						<td><input type="radio" name="twitter_usage" id="tw_5" value="5"></td>
+						<td><input type="radio" name="twitter_usage" id="tw_6" value="6"></td>
+						<td><input type="radio" name="twitter_usage" id="tw_7" value="7"></td>
+					</tr>
+				</tbody>
+			</table>
+			{% if field.twitter_usage.errors %}
+				<div class="alert alert-danger" role="alert">{{ field.twitter_usage.errors.as_text }}</div>
+			{% endif %}
+		</div>
+		<div class="form-group">
+			<label for="id_english_reading_comfort">On a scale of 1 to 10, how comfortable are you in your ability to  understand <i>written English</i>?</label>
+			<table class="radio_btns">
+				<thead></thead>
+				<tbody>
+					<tr>
+						<th><label for="erc_0">Very uncomfortable<br/>1</label></th>
+						<th><label for="erc_1">2</label></th>
+						<th><label for="erc_2">3</label></th>
+						<th><label for="erc_3">4</label></th>
+						<th><label for="erc_4">5</label></th>
+						<th><label for="erc_5">6</label></th>
+						<th><label for="erc_6">7</label></th>
+						<th><label for="erc_7">8</label></th>
+						<th><label for="erc_8">9</label></th>
+						<th><label for="erc_9">Very comfortable<br/>10</label></th>
+					</tr>
+					<tr>
+						<td><input type="radio" name="english_reading_comfort" id="erc_0" value="0"></td>
+						<td><input type="radio" name="english_reading_comfort" id="erc_1" value="1"></td>
+						<td><input type="radio" name="english_reading_comfort" id="erc_2" value="2"></td>
+						<td><input type="radio" name="english_reading_comfort" id="erc_3" value="3"></td>
+						<td><input type="radio" name="english_reading_comfort" id="erc_4" value="4"></td>
+						<td><input type="radio" name="english_reading_comfort" id="erc_5" value="5"></td>
+						<td><input type="radio" name="english_reading_comfort" id="erc_6" value="6"></td>
+						<td><input type="radio" name="english_reading_comfort" id="erc_7" value="7"></td>
+						<td><input type="radio" name="english_reading_comfort" id="erc_8" value="8"></td>
+						<td><input type="radio" name="english_reading_comfort" id="erc_9" value="9"></td> 
+					</tr>
+				</tbody>
+			</table>
+			{% if field.english_reading_comfort.errors %}
+				<div class="alert alert-danger" role="alert">{{ field.english_reading_comfort.errors.as_text }}</div>
+			{% endif %}
+		</div>
+
+		<div class="form-group">
+			<label for="id_english_sarcasm_comfort">On a scale of 1 to 10, how comfortable are you in your ability to understand <i>sarcasm in English</i>?</label>
+			<table class="radio_btns">
+				<thead></thead>
+				<tbody>
+					<tr>
+						<th><label for="esc_0">Very uncomfortable<br/>1</label></th>
+						<th><label for="esc_1">2</label></th>
+						<th><label for="esc_2">3</label></th>
+						<th><label for="esc_3">4</label></th>
+						<th><label for="esc_4">5</label></th>
+						<th><label for="esc_5">6</label></th>
+						<th><label for="esc_6">7</label></th>
+						<th><label for="esc_7">8</label></th>
+						<th><label for="esc_8">9</label></th>
+						<th><label for="esc_9">Very comfortable<br/>10</label></th>
+					</tr>
+					<tr>
+						<td><input type="radio" name="english_sarcasm_comfort" id="esc_0" value="0"></td>
+						<td><input type="radio" name="english_sarcasm_comfort" id="esc_1" value="1"></td>
+						<td><input type="radio" name="english_sarcasm_comfort" id="esc_2" value="2"></td>
+						<td><input type="radio" name="english_sarcasm_comfort" id="esc_3" value="3"></td>
+						<td><input type="radio" name="english_sarcasm_comfort" id="esc_4" value="4"></td>
+						<td><input type="radio" name="english_sarcasm_comfort" id="esc_5" value="5"></td>
+						<td><input type="radio" name="english_sarcasm_comfort" id="esc_6" value="6"></td>
+						<td><input type="radio" name="english_sarcasm_comfort" id="esc_7" value="7"></td>
+						<td><input type="radio" name="english_sarcasm_comfort" id="esc_8" value="8"></td>
+						<td><input type="radio" name="english_sarcasm_comfort" id="esc_9" value="9"></td> 
+					</tr>
+				</tbody>
+			</table>
+			{% if field.english_sarcasm_comfort.errors %}
+				<div class="alert alert-danger" role="alert">{{ field.english_sarcasm_comfort.errors.as_text }}</div>
+			{% endif %}			
+		</div>			
+
+		<div class="row">
+			<div class="col-md-6">
+				<button type="submit" class="btn btn-default btn-primary pull-right">Submit</button>
+			</div>
+		</div>
+	</form>
+
+{% endblock %}
+
