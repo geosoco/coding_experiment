@@ -86,6 +86,7 @@ tweetCodingApp.controller('TweetListCtrl',
 
 			$scope.$broadcast("data:loaded");
 			twttr.widgets.load();
+
 		});
 
 
@@ -315,7 +316,7 @@ tweetCodingApp.controller('TweetListCtrl',
 	$scope.itemClicked = function($index) {
 		//console.log('+' + $index);
 		$scope.selected = $index;
-		//$scope.setSelectedTweetIdx($index);
+		$scope.setSelectedTweetIdx($index);
 	}
 
 
@@ -428,6 +429,8 @@ function($scope, $document) {
 		  return t;
 		}(document, "script", "twitter-wjs"));
 
+
+		$location.hash("tweet-" + idx);
 		//twttr.widgets.load();
 		//$document[0].body.innerHTML += "<script async src=\"//platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>";
 	});
