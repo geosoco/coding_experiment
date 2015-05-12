@@ -1,0 +1,165 @@
+{% extends "static_base.html" %}
+{% load staticfiles %}
+
+{% block head_style %}
+	body { background: #abc; }
+	.content { background: #fff; color: #333; margin: 20px; padding: 40px; border-radius: 8px;}
+	form { margin-top: 50px;}
+	#header { margin-bottom: 50px; }
+{% endblock %}
+
+{% block content %}
+			<div class="row" id="header">
+				<div class="col-md-12">
+					<h1>Labelling Experiment Requirement Check</h1>
+				</div>
+			</div>				
+			<div class="row req" id="req-js">
+				<div class="col-md-12">
+					<p>Javascript Enabled:
+						<span class="result">
+							<noscript><span class="fail">Failed</span></noscript>
+						</span>
+					</p>
+					<noscript>
+						<div class="alert alert-danger" role="alert">
+							<h3>Javascript is disabled.</h3>
+							<p>You must enable Javascript before you are able to proceed.</p>
+							<p>Once you have done this, refresh this page in order to continue other tests.</p>
+						</div>
+					</noscript>
+				</div>
+			</div>
+
+			<div class="row req" id="req-cookies">
+				<div class="col-md-12">
+					<p>Cookies Enabled: 
+						<span class="result">
+							<span class="req-checking hidden"><span class="spinner"></span> Checking... </span>
+							<noscript><span class="fail">Failed</span> <span>(This test requires JavaScript)</span></noscript>
+						</span>
+					</p>
+					<div class="alert alert-danger hidden" role="alert">
+						<h3>Cookies are disabled.</h3>
+						<p>You must enable cookies before you can continue.</p>
+						<p>Refresh your browser after you have enabled cookies.</p>
+					</div>
+				</div>
+			</div>	
+
+			<div class="row req" id="req-twitter">
+				<div class="col-md-12">
+					<p>Twitter Scripts Enabled: 
+						<span class="result">
+							<span class="req-checking hidden"><span class="spinner"></span> Checking... (waiting <span id="tw-wait"></span>  more seconds.)</span>
+							<noscript><span class="fail">Failed</span> <span>(This test requires JavaScript)</span></noscript>
+						</span>
+					</p>
+					<div id="alert-no-twitter" class="alert alert-danger hidden" role="alert">
+						<h3>Twitter Script is disabled.</h3>
+						<p>Do you have an ad blocker or privacy extension installed? You need to disable it for this site.</p>
+						<p>This task requires scripts to be loaded from Twitter. If you are running an privacy or adblock extension, you need to disable blocking for this site or allow Twitter's scripts to run. To help protect your privacy, our pages include code telling Twitter not to track you on this site. The script is only used to render content according to Twitter's rules.</p>
+						<p>After you've disabled this, refresh the page to make sure it's disabled.</p>
+					</div>
+
+				</div>
+			</div>		
+
+
+			<div class="row" id="final-results">
+				<div class="alert alert-success hidden" role="alert" id="final-results-success">
+					<h3>Success!</h3>
+					<p>You are qualified to take this task! You can close this window, and accept the task.</p>
+				</div>
+			</div>
+
+{% endblock %}
+
+
+{% block script_includes %}
+	<script src="{% static "js/req-check.js" %}"></script>
+{% endblock %}
+
+
+{% block final_script %}
+
+var success_html = "<span class='success'><span class='glyphicon glyphicon-ok'></span> Success!</span>",
+	failure_html = "<span class='fail'><span class='glyphicon glyphicon-remove'></span> Failed.</span>";
+
+
+function updateStatus(parent_id, value) {
+	var text = failure_html;
+	if(value === true) {
+		text = success_html;
+		$(parent_id).find(".alert").addClass("hidden");
+	} else if(value === false ) {
+		$(parent_id).find(".alert").removeClass("hidden");
+	}
+
+	// don't update text if it's null
+	if(value !== null) {
+		// set the text
+		$(parent_id).find(".result").html(text);	
+	}
+
+}
+
+function updatePage(rq) {
+	console.log("updatePage");
+	console.dir(rq);
+
+	updateStatus("#req-cookies", rq.cookieEnabled);
+	updateStatus("#req-twitter", rq.twitterEnabled);
+}
+
+function onReqCheckSuccess(rq) {
+	updatePage(rq);
+	$("#final-results-success").removeClass("hidden");
+}
+
+function onReqCookiesFailed(rq) {
+	updatePage(rq);
+}
+
+function onReqTwitterFailed(rq) {
+	updatePage(rq);
+}
+
+
+function onReqUpdateTwitterStatus(rq, d) {
+	updatePage(rq);
+	$("#tw-wait").text(d);
+}
+
+(function(reqcheck){
+
+
+	var rq = new reqcheck.ReqCheck(
+		onReqCheckSuccess,
+		onReqCookiesFailed,
+		onReqTwitterFailed,
+		onReqUpdateTwitterStatus
+	)
+
+	$("#req-js .result").html(success_html);
+
+})(RequirementCheck);
+
+
+
+(function(){
+
+	$(".req-checking").removeClass("hidden");
+	$(".spinner").spin('tiny');
+
+
+	$("#ua").text(navigator.userAgent);
+	$("#vendor").text(navigator.vendor);
+	$("#platform").text(navigator.platform);
+	$("#lang").text(navigator.language);
+	$("#width").text($(window).width());
+	$("#height").text($(window).height());
+
+})();
+
+{% endblock %}

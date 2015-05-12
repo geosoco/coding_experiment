@@ -83,6 +83,8 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
+STATIC_ROOT = os.path.join(ROOT_DIR, 'assets')
+
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
     os.path.join(ROOT_DIR, "static"),
@@ -90,7 +92,6 @@ STATICFILES_DIRS = (
 )
 
 
-STATIC_ROOT = os.path.join(ROOT_DIR, 'assets')
 
 
 # Application definition

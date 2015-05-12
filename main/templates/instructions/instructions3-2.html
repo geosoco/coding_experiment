@@ -1,0 +1,66 @@
+{% extends "instruction_base.html" %}
+{% load staticfiles %}
+
+
+{% block help_content %}
+			<div class="row">
+				<div class="col-md-12">
+					<h1>Rumor and Labels</h1>
+
+					<h2>Rumor definition</h2>
+					<h4>Suicide Bomber / Bomb belt, backpack, or vest</h4>
+					<p>This rumor claims someone was a suicide bomber or that they had an explosive device in backpacks, vests, or belts.</p>
+
+
+					<h2>Applying Labels</h2>
+					<p>You will be applying one set of labels. This set consists of 3 labels and only one should be applied to each tweet.  </p>
+
+					<h3>Affirmation or Denial</h3>
+					<p>This set of labels describes whether the tweet affirms or denies the rumor. You should label any tweet that supports or just passes along this information as <span class="label label-default label-Affirm">Affirm</span> label. Any tweet that denies or questions the presence of a bomb or the ability of the person to be a suicide bomber should be labeled  <span class="label label-default label-Deny">Deny</span> label. In rare cases, the tweet will not affirm or deny the rumor. You should label these <span class="label labe-default label-Neutral">Neutral</span>. </p>
+
+					<div class="alert alert-warning">
+						<strong>You must apply ONLY one of these for each tweet.</strong>
+					</div>
+
+					<table class="table" style="margin: 40px 10px;">
+						<thead>
+							<tr>
+								<th>Label</th>
+								<th>Keyboard</th>
+								<th>Definition</th>
+								<th>Example</th>
+							</tr>
+						</thead>
+						<tbody>
+
+							<tr>
+								<td><span class="label label-default label-Affirm">Affirm</span></td>
+								<td><span class="keyboard-btn">1</span></td>
+								<td>This tweet affirms, supports, and functions to pass along the story. </td>
+								<td>@KevinZZ The hostage-taker has a bomb in his backpack. #Sydney #SydneySiege</td>
+							</tr>
+							<tr>
+								<td><span class="label label-default label-Neutral">Neutral</span></td>
+								<td><span class="keyboard-btn">2</span></td>
+								<td>The tweet is exactly neutral (use sparingly). Be careful not to conflate with an implicit affirmation.</td>
+								<td>RT @JillSmith: CNN has a picture of the hostage taker.</td>
+							</tr>
+							<tr>
+								<td><span class="label label-default label-Deny">Deny</span></td>
+								<td><span class="keyboard-btn">3</span></td>
+								<td>This tweet denies or questions all or part of the story.</td>
+								<td>I don't see any sign of a bomb or backpack in that picture. #sydneysiege</td>
+							</tr>
+						</tbody>
+					</table>
+
+
+				</div>
+			</div>
+
+
+{% endblock %}
+
+
+
+

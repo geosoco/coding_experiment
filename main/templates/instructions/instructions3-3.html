@@ -1,0 +1,46 @@
+{% extends "instruction_base.html" %}
+{% load staticfiles %}
+
+
+{% block help_content %}
+			<div class="row">
+				<div class="col-md-12">
+					<h1>Rumor and Labels</h1>
+
+					<h2>Rumor definition</h2>
+					<h4>Suicide Bomber / Bomb belt, backpack, or vest</h4>
+					<p>This rumor claims someone was a suicide bomber or that they had an explosive device in backpacks, vests, or belts.</p>
+
+
+					<h2>Applying Labels</h2>
+					<h3>Uncertainty</h3>
+					<p>This label should be applied to every tweet where the author expresses uncertainty about the information.</p>
+
+					<table class="table" style="margin: 20px;">
+						<thead>
+							<tr>
+								<th>Label</th>
+								<th>Keyboard</th>
+								<th>Definition</th>
+								<th>Example</th>
+							</tr>						
+						</thead>
+						<tbody>
+							<tr>
+								<td><span class="label label-Uncertainty">Uncertainty</span></td>
+								<td><span class="keyboard-btn">4</span></td>
+								<td>This tweet expresses some level of uncertainty about the story. This refers to a property of the tweet itself, not your uncertainty. In other words, the tweet suggests that the veracity of the story is not 100% resolved. (This code refers to a relationship between the tweet’s author and the rumor/story - i.e. the tweet author expresses uncertainty in the tweet). [Not me, them]
+								</td>								
+								<td>Is no one else concerned there might be a bomb in that backpack? #Sydney</td>
+							</tr>
+						</tbody>
+					</table>
+
+				</div>
+			</div>
+
+{% endblock %}
+
+
+
+

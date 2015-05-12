@@ -1,21 +1,29 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
+from django.template.context_processors import csrf
 from django.shortcuts import render, render_to_response, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseNotFound,  HttpResponseBadRequest
 from django.core.urlresolvers import reverse
+from django.db.models import Count
+from django.views.generic.edit import CreateView
 #from django.template.context_processors import csrf
 from models import *
 import string
 import random
 import datetime
+import time
+from forms import *
+from pprint import pprint
+
+
 
 
 # 
 # conditions
-# 	0 - All Codes
-#	1 - First Level only
-#	2 - Second level only
-#	3 - (later: uncertainty yes/no)
+# 	1 - All Codes
+#	2 - First Level only
+#	3 - Second level only
+#	4 - (later: uncertainty yes/no)
 
 
 #
@@ -26,24 +34,66 @@ import datetime
 
 condition_map = {
 	"instructions" : { 
-		"0" : {
-			"1": { "page": "instructions.html", "next": "/coding/0/" },
-			"2": { "page": "instructions_1.html", "next": "/coding/0/" },
-			"3": { "page": "instructions_2.html", "next": "/coding/0/" },
+		"1" : {
+			"1": { "page": "instructions/instructions1-1.html", "next": "/instructions/2/" },
+			"2": { "page": "instructions/instructions1-1.html", "next": "/instructions/2/" },
+			"3": { "page": "instructions/instructions1-1.html", "next": "/instructions/2/" },
+		},
+		"2" : {
+			"1": { "page": "instructions/instructions2-1.html", "next": "/instructions/3/" },
+			"2": { "page": "instructions/instructions2-1.html", "next": "/instructions/3/" },
+			"3": { "page": "instructions/instructions2-1.html", "next": "/instructions/3/" },
+		},
+		"3" : {
+			"1": { "page": "instructions/instructions3-1.html", "next": "/instructions/4/" },
+			"2": { "page": "instructions/instructions3-2.html", "next": "/instructions/4/" },
+			"3": { "page": "instructions/instructions3-3.html", "next": "/instructions/4/" },
+		},
+		"4" : {
+			"1": { "page": "instructions/instructions4-1.html", "next": "/instructioncheck/" },
+			"2": { "page": "instructions/instructions4-2.html", "next": "/instructioncheck/" },
+			"3": { "page": "instructions/instructions4-3.html", "next": "/instructioncheck/" },
 		}
 	}, 
+	"pre_survey": {
+		"1": { "next": "/instructions/1/" },
+		"2": { "next": "/instructions/1/" },
+		"3": { "next": "/instructions/1/" },
+	},
+	"post_survey": {
+		"1": { "next": "/thanks/" },
+		"2": { "next": "/thanks/" },
+		"3": { "next": "/thanks/" },
+	},
+	"validate": {
+		"0" : {
+			"1": { "positive_redirect": "/pause/", "negative_redirect": "/survey/post/" },
+			"2": { "positive_redirect": "/pause/", "negative_redirect": "/survey/post/" },
+			"3": { "positive_redirect": "/pause/", "negative_redirect": "/survey/post/" },
+		},
+		"1" : {
+			"1": { "positive_redirect": "/survey/post/", "negative_redirect": "/survey/post/" },
+			"2": { "positive_redirect": "/survey/post/", "negative_redirect": "/survey/post/" },
+			"3": { "positive_redirect": "/survey/post/", "negative_redirect": "/survey/post/" },
+		},		
+	},
 	"coding" : {
 		"0": {
-			"1": { "page": "coding.html", "next": "/coding/1/" },
-			"2": { "page": "coding.html", "next": "/coding/1/" },
-			"3": { "page": "coding.html", "next": "/coding/1/" },	
+			"1": { "page": "coding.html", "next": "/validate/0/", "help": "instructions/summary1.html" },
+			"2": { "page": "coding.html", "next": "/validate/0/", "help": "instructions/summary2.html" },
+			"3": { "page": "coding.html", "next": "/validate/0/", "help": "instructions/summary3.html" },	
 		},
 		"1": {
-			"1": { "page": "coding.html", "next": "/thanks/" },
-			"2": { "page": "coding.html", "next": "/thanks/" },
-			"3": { "page": "coding.html", "next": "/thanks/" },	
+			"1": { "page": "coding.html", "next": "/validate/1/", "help": "instructions/summary1.html" },
+			"2": { "page": "coding.html", "next": "/validate/1/", "help": "instructions/summary2.html" },
+			"3": { "page": "coding.html", "next": "/validate/1/", "help": "instructions/summary3.html" },	
 		}
 
+	},
+	"bonus_check" : {
+		"1": { "yes": "/coding/1/", "no": "/survey/post/"},
+		"2": { "yes": "/coding/1/", "no": "/survey/post/"},
+		"3": { "yes": "/coding/1/", "no": "/survey/post/"},
 	},
 }
 
@@ -147,11 +197,14 @@ def create_user(request, cnd=None):
 	#print "turk_user saved"
 
 	# find condition
-	all_conditions = Condition.objects.filter(study_id=1)
+	study = Study.objects.get(id=1)
+	all_conditions = Condition.objects.filter(study=study)
 	print "got %d conditions"%(all_conditions.count())
 
+
 	if cnd is None:
-		rnd = datetime.datetime.now().second % (all_conditions.count()+1)
+		#rnd = datetime.datetime.now().second % (all_conditions.count()+1)
+		rnd = random.randint(0,10*(all_conditions.count()-1)) // 10
 		print "Assinging user to ", rnd
 		condition = all_conditions[rnd]
 	else:
@@ -196,27 +249,199 @@ def home(request):
 	return render(request, "base.html")
 
 
-def coding(request, page):
+
+def make_instance_struct(queryset):
+	ret_dict = {}
+	for instance in queryset:
+		if instance.tweet_id not in ret_dict:
+			ret_dict[instance.tweet_id] = set()
+
+		ret_dict[instance.tweet_id].add(instance.code_id)	
+
+	return ret_dict
+
+
+
+def validate(request, page):
+	"""
+	This attempts to validate some of the tweets
+	"""
+	_start = time.time()
 	c = build_user_cookie(request)
-	print "coding---"
+	print "validate--- (%s)"%(page)
 	print request.user.id
 	print request.user.turkuser.id
 	print "authenticated", request.user.is_authenticated()
-	page = page if page is not None else 0
-	c["page"] = page
+
+	assignment_id = int(c["assignment"])
 	condition_id = int(c["condition"])
 	condition = Condition.objects.get(pk=condition_id)
-	c["next"] = condition_map["coding"][str(page)][str(condition.id)]["next"]
 	datasets = condition.dataset.all()
+
+	correct = set()
+	all_items = set()
+
+	# verify the page is in range
+	page_num = int(page)
+	if page_num < 0 or page_num >= datasets.count():
+		return HttpResponseBadRequest()
+
+	dataset = datasets[page_num]
+
+	# find the attention checks
+	attention_checks = Tweet.objects.filter(dataset = dataset, attention_check=True)
+	ac_ids = [ac.id for ac in attention_checks]
+	#print "ac_ids: ", repr(ac_ids)
+	#print "condition id: ", condition_id
+	answers = Answer.objects.filter(tweet_id__in=ac_ids, condition=condition)
+	answer_dict = make_instance_struct(answers)
+	#print "answer_dict: ", repr(answer_dict)
+
+	# grab instances
+	instances = CodeInstance.objects.filter(tweet_id__in=ac_ids, assignment=assignment_id, deleted=False)
+	instance_dict = make_instance_struct(instances)
+	#print "instance_dict: ", repr(instance_dict)
+
+	# check each one of the attention checks
+	for ac in ac_ids:
+		# add the attention check to our items list
+		all_items.add(ac)
+
+		answer_set = answer_dict.get(ac, set())
+		instance_set = instance_dict.get(ac,set())
+
+		is_correct = (instance_set == answer_set)
+		if is_correct:
+			correct.add(ac)
+
+		uvi = UserValidatedInstance(
+				user = request.user,
+				kind = UserValidatedInstance.ATTENTION_CHECK,
+				correct = is_correct,
+				tweet_1_id = ac,
+				tweet_2_id = None,
+				tweet_1_codes = "answers: " + repr(answer_dict),
+				tweet_2_codes = "instances: " + repr(instance_dict)
+			)
+		uvi.save()
+
+
+		print "tweet %d: %s"%(ac, str(is_correct))
+
+
+
+
+	# find duplicates
+	duplicate_tweet_ids = Tweet.objects \
+		.filter(dataset=dataset) \
+		.values("tweet_id") \
+		.annotate(num=Count("tweet_id")) \
+		.order_by() \
+		.filter(num__gt=1)
+
+	#print "dupes: ", duplicate_tweet_ids
+	duplicate_tweet_ids = [t["tweet_id"] for t in duplicate_tweet_ids]
+	#print "dupes: ", duplicate_tweet_ids
+
+	duplicate_tweets = Tweet.objects.filter(dataset=dataset, tweet_id__in=duplicate_tweet_ids)
+	duplicate_ids = [t.id for t in duplicate_tweets]
+
+	dup_instances = CodeInstance.objects.filter(tweet_id__in=duplicate_ids, assignment=assignment_id, deleted=False)
+
+	dup_dict = {}
+	for dt in duplicate_tweets:
+		if dt.tweet_id not in dup_dict:
+			dup_dict[dt.tweet_id] = set()
+		dup_dict[dt.tweet_id].add(dt.id)
+
+	#print "dup dict: ", dup_dict
+
+	# validate the duplicates
+	# this will only do forward comparisons. So each dupe's codes is compared to the last
+	# it does NOT do full pairwise comparisons
+	# so the total # of comparisons will be N-1 (number of dupes - 1)
+	dinst_dict = make_instance_struct(dup_instances)
+	for tid, dup_set in dup_dict.iteritems():
+		last_instance = None
+		last_id = None
+		for id in dup_set:
+			cur_instance = dinst_dict.get(id, set())
+			if last_instance is not None:
+				# add it to the entire set. do not add the first one as it isn't a check
+				all_items.add(id)
+				is_consistent = (cur_instance == last_instance)
+				if is_consistent:
+					print "%d is consistent with %d (%s,%s)"%(
+						id, last_id, 
+						repr(cur_instance), repr(last_instance))
+					correct.add(id)
+				else:
+					print "%d is INCONSISTENT with %d (%s,%s)"%(
+						id, last_id, 
+						repr(cur_instance), repr(last_instance))
+				uvi = UserValidatedInstance(
+					user=request.user,
+					kind=UserValidatedInstance.DUPLICATE_CHECK,
+					correct=is_consistent,
+					tweet_1_id=last_id,
+					tweet_2_id=id,
+					tweet_1_codes=repr(last_instance),
+					tweet_2_codes=repr(cur_instance)
+					)
+				uvi.save()
+			last_instance = cur_instance
+			last_id = id
+
+
+	print "%d of %d correct"%(len(correct), len(all_items))
+
+
+	
+
+
+	#_end = time.time()
+	#_total_time = _end - _start
+	#print "total_time: ", _total_time
+
+	cnd_map_entry = condition_map["validate"][page][str(condition.id)]
+
+	if len(correct) > (len(all_items)//2):
+		return HttpResponseRedirect(cnd_map_entry["positive_redirect"])
+	else:
+		return HttpResponseRedirect(cnd_map_entry["negative_redirect"])
+
+
+def coding(request, page):
+	c = build_user_cookie(request)
+	#print "coding---"
+	#print request.user.id
+	#print request.user.turkuser.id
+	#print "authenticated", request.user.is_authenticated()
+	page = int(page) if page is not None else 0
+	#print "page: ", page
+	c["page"] = page
+
+	condition_id = int(c["condition"])
+	condition = Condition.objects.get(pk=condition_id)
+	datasets = condition.dataset.all()
+	c["next"] = condition_map["coding"][str(page)][str(condition.id)]["next"]
+	c["help"] = condition_map["coding"][str(page)][str(condition.id)]["help"]
+	
 	for index, ds in enumerate(datasets):
-		print "#%d, %s"%(index, repr(ds))
+		#print "#%d, %s"%(index, repr(ds))
 		if index == int(page):
-			print "got index: ", index
+			#print "got index: ", index
 			c["dataset_id"] = ds.id
 			break
 	
-	print condition.name, condition.id
-	print condition_map["coding"][str(page)][str(condition.id)]["next"]
+	# look for validations on this dataset
+	uvis = UserValidatedInstance.objects.filter(user=request.user, tweet_1__dataset_id=ds.id)
+	if uvis is not None and uvis.count() > 0:
+		return HttpResponseRedirect(c["next"])
+
+	#print condition.name, condition.id
+	#print condition_map["coding"][str(page)][str(condition.id)]["next"]
+	#print condition_map["coding"][str(page)][str(condition.id)]["help"]
 	return render(request, "base.html" ,c)
 
 
@@ -231,14 +456,15 @@ def landing(request, cnd=None):
 		#c["browser_info"] = request.POST["browser_info"]
 
 		#return render(request, "landing.html", c)
-		return HttpResponseRedirect(reverse('instructions', kwargs=({"page": "0"})))
+		return HttpResponseRedirect(reverse('pre_survey'))
 	else:
 		c = {}
+		c.update(csrf(request))
 
 	return render(request, "landing.html", c)
 
 
-def instructions(request, page):
+def instructions(request, page = 1):
 
 	#print "instructions!"
 
@@ -273,3 +499,73 @@ def thanks(request):
 	return render(request, "thanks.html", c)
 
 
+def pre_survey(request):
+	c = build_user_cookie(request)
+	c.update(csrf(request))
+
+	if request.method == "POST":
+		condition = c['condition']
+		ps = PreSurvey(user=request.user)
+		form = PreSurveyForm(request.POST, instance=ps)
+		if form.is_valid():
+			ps.save()
+			#print "pre_survey success redirection ----"
+			#print "redirecting to: ", condition_map["pre_survey"][str(condition)]["next"]
+			return HttpResponseRedirect( condition_map["pre_survey"][str(condition)]["next"] )
+		else:
+			#print "not valid!"
+			#print "form errors: "
+			print form.errors.as_json()
+
+	else:
+		form = PreSurveyForm()
+
+	c['form'] = form
+
+	return render(request, "pre_survey.html", c)
+
+def post_survey(request):
+	c = build_user_cookie(request)
+	c.update(csrf(request))
+
+	if request.method == "POST":
+		condition = c['condition']
+		ps = PostSurvey(user=request.user)
+		form = PostSurveyForm(request.POST, instance=ps)
+		if form.is_valid():
+			ps.save()
+			return HttpResponseRedirect( condition_map["post_survey"][str(condition)]["next"] )
+	else:
+		form = PostSurveyForm()
+
+	c['form'] = form
+
+	return render(request, "post_survey.html", c)
+
+
+def req_check(request):
+	return render(request, "req_check.html")
+
+
+class InstructionCheck(CreateView):
+	template_name = 'instruction_check.html'
+	form_class = InstructionCheckForm
+	success_url = '/coding/0/'
+
+	def form_valid(self, form):
+		self.object = form.save(commit=False)
+		self.object.user = self.request.user
+		self.object.save()
+
+		return HttpResponseRedirect(self.get_success_url())
+
+
+
+def bonus_check(request):
+	c = build_user_cookie(request)
+	condition = c['condition']
+
+	c['yes'] = condition_map["bonus_check"][str(condition)]["yes"]
+	c['no'] = condition_map["bonus_check"][str(condition)]["no"]
+
+	return render(request, "bonus_check.html", c)

@@ -12,16 +12,10 @@
 	table th:nth-of-type(2) { width: 10%; }
 	table th:nth-of-type(3) { width: 40%; }
 	table th:nth-of-type(4) { width: 40%; }
-
-	h2, h3 { margin-top: 40px; }
 {% endblock %}
 
-{% block content %}
+{% block outer_content %}
 	{% block help_content %}
 	{% endblock %}
-
-	<div class="row" style="margin-top: 50px">
-		<a href="{{next}}" class="btn btn-primary pull-right">Next</a>
-	</div>	
 {% endblock %}
 

@@ -8,7 +8,7 @@ class TurkUser(models.Model):
 	initial_browser_details = models.TextField(blank=True, null=True)
 	final_browser_details = models.TextField(blank=True, null=True)
 
-	start_time = models.DateTimeField(auto_now=True)
+	start_time = models.DateTimeField(auto_now_add=True)
 	finish_time = models.DateTimeField(blank=True, null=True)
 
 	completion_code = models.CharField(max_length=64, blank=True, null=True)
@@ -80,6 +80,7 @@ class Tweet(models.Model):
 class Study(models.Model):
 	name = models.CharField(max_length=256)
 	description = models.TextField(null=True, blank=True)
+	last_condition = models.IntegerField(null=True, blank=True)
 
 	def __str__(self):
 		return "%s (%d)"%(self.name, self.id)
@@ -106,7 +107,7 @@ class Condition(models.Model):
 class Answer(models.Model):
 	condition = models.ForeignKey(Condition)
 	tweet = models.ForeignKey(Tweet)
-	code = models.ForeignKey(Code)
+	code = models.ForeignKey(Code, null=True, blank=True)
 
 
 
@@ -150,21 +151,52 @@ class PreSurvey(models.Model):
 	"""
 	"""
 	user = models.ForeignKey(User)
-	age = models.IntegerField(blank=True, null=True)
-	country = models.IntegerField(blank=True, null=True)
-	zip_code = models.IntegerField(blank=True, null=True)
-	twitter_familiarity = models.IntegerField(blank=True, null=True)
+	time = models.DateTimeField(auto_now_add=True)
+	age = models.TextField(blank=True, null=True)
+	country = models.TextField(blank=True, null=True)
+	zip_code = models.TextField(blank=True, null=True)
+	rumor_familiarity = models.IntegerField(blank=True, null=True)
+	twitter_usage = models.IntegerField(blank=True, null=True)
 	english_reading_comfort = models.IntegerField(blank=True, null=True)
-	english_speaking_comfort = models.IntegerField(blank=True, null=True)
-	overall_english_comfort = models.IntegerField(blank=True, null=True)
+	english_sarcasm_comfort = models.IntegerField(blank=True, null=True)
+
 
 class PostSurvey(models.Model):
 	"""
 	"""
 	user = models.ForeignKey(User)
+	time = models.DateTimeField(auto_now_add=True)
 	task_difficulty = models.IntegerField(blank=True, null=True)
 	task_clarity = models.IntegerField(blank=True, null=True)
 	task_value = models.IntegerField(blank=True, null=True)
 	suggestions = models.TextField(blank=True, null=True)
 
 
+class InstructionCheck(models.Model):
+	"""
+	"""
+	user = models.ForeignKey(User)
+	time = models.DateTimeField(auto_now_add=True)
+	rumor_description = models.TextField(blank=False, null=True)
+	which_codes = models.TextField(blank=False, null=True)	
+
+
+class UserValidatedInstance(models.Model):
+	"""
+	This is intended to hold references to all 
+	"""
+	ATTENTION_CHECK = 1
+	DUPLICATE_CHECK = 2
+	KIND_CHOICES = (
+		(ATTENTION_CHECK, 'Attention Check'),
+		(DUPLICATE_CHECK, 'Duplicate Check')
+	)
+
+	user = models.ForeignKey(User)
+	time = models.DateTimeField(auto_now_add=True)
+	kind = models.IntegerField(choices=KIND_CHOICES, default=ATTENTION_CHECK)
+	correct = models.BooleanField(default=False)
+	tweet_1 = models.ForeignKey(Tweet, related_name='%(class)s_tweet_1')
+	tweet_2 = models.ForeignKey(Tweet, blank=True, null=True, related_name='%(class)s_tweet_2')
+	tweet_1_codes = models.TextField(blank=True, null=True)
+	tweet_2_codes = models.TextField(blank=True, null=True)

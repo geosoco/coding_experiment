@@ -1,0 +1,86 @@
+{% extends "instruction_base.html" %}
+{% load staticfiles %}
+
+
+{% block help_content %}
+			<div class="row">
+				<div class="col-md-12">
+					<h1>Instructions</h1>
+					<h2>Navigating Tweets</h2>
+					<div class="row">
+						<div class="col-md-5">
+							<h4>Keyboard</h4>
+							<p>You can navigate between tweets using the keyboard arrow keys</p>
+							<p><span class="keyboard-btn">&uarr;</span> - Previous Tweet</p>
+							<p><span class="keyboard-btn">&darr;</span> - Next Tweet</p>
+						</div>
+						<div class="col-md-5 col-md-offset-1">
+							<h4>Mouse</h4>
+							<p>Two buttons can be found to the right of the tweet to navigate to the previous and next tweet.</p>
+							<p><a href="#" class="btn btn-default" data-toggle="tooltip" data-placement="left" aria-label="Previous Item" title="Previous Item"><span class="glyphicon glyphicon-chevron-up"></span></a> - Previous Tweet</p>
+							<p><a href="#" class="btn btn-default" data-toggle="tooltip" data-placement="left" aria-label="Next Item" title="Next Item"><span class="glyphicon glyphicon-chevron-down"></span></a> - Next Tweet</p>
+						</div>
+					</div>
+
+					<h2>Applying Labels</h2>
+					<div class="row">
+						<div class="col-md-5">
+							<h4>Keyboard</h4>
+							<p><strong>Adding a label:</strong> Press keys <span class="keyboard-btn">1</span> through <span class="keyboard-btn">4</span> to add a label to the selected tweet.</p>
+							<p><strong>Remove a label:</strong> Press keys <span class="keyboard-btn">1</span> through <span class="keyboard-btn">4</span> a second time to remove the code from the selected tweet.</p>
+						</div>
+						<div class="col-md-5 col-md-offset-1">
+							<h4>Mouse</h4>
+							<p>You can apply codes by clicking the label at the top left of the screen. To remove it from the currently selected tweet, click the label a second time. You can also remove it by clicking the X button on the label.</p>
+						</div>
+					</div>
+
+
+
+					<table class="table" style="margin: 40px 10px;">
+						<thead>
+							<tr>
+								<th>Label</th>
+								<th>Keyboard</th>
+								<th>Definition</th>
+								<th>Example</th>
+							</tr>
+						</thead>
+						<tbody>
+
+							<tr>
+								<td><span class="label label-default label-Affirm">Affirm</span></td>
+								<td><span class="keyboard-btn">1</span></td>
+								<td>This tweet affirms, supports, and functions to pass along the story. </td>
+								<td>@KevinZZ The hostage-taker has a bomb in his backpack. #Sydney #SydneySiege</td>
+							</tr>
+							<tr>
+								<td><span class="label label-default label-Neutral">Neutral</span></td>
+								<td><span class="keyboard-btn">2</span></td>
+								<td>The tweet is exactly neutral (use sparingly). Be careful not to conflate with an implicit affirmation.</td>
+								<td>RT @JillSmith: CNN has a picture of the hostage taker.</td>
+							</tr>
+							<tr>
+								<td><span class="label label-default label-Deny">Deny</span></td>
+								<td><span class="keyboard-btn">3</span></td>
+								<td>This tweet denies or questions all or part of the story.</td>
+								<td>I don't see any sign of a bomb or backpack in that picture. #sydneysiege</td>
+							</tr>
+							<tr>
+								<td><span class="label label-Uncertainty">Uncertainty</span></td>
+								<td><span class="keyboard-btn">4</span></td>
+								<td>This tweet expresses some level of uncertainty about the story. This refers to a property of the tweet itself, not your uncertainty. In other words, the tweet suggests that the veracity of the story is not 100% resolved. (This code refers to a relationship between the tweet’s author and the rumor/story - i.e. the tweet author expresses uncertainty in the tweet). [Not me, them]
+								</td>								
+								<td>Is no one else concerned there might be a bomb in that backpack? #Sydney</td>
+							</tr>							
+						</tbody>
+					</table>
+
+
+				</div>
+			</div>
+{% endblock %}
+
+
+
+

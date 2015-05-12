@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html ng-app="{% block ng_app %}tweetCodingApp{% endblock %}">
 <head>
+	<meta name="twitter:dnt" content="on">
 	<link rel="stylesheet" type="text/css" href="{% static "bower_components/bootstrap/dist/css/bootstrap.css" %}">
 	<link rel="stylesheet" type="text/css" href="{% static "css/main.css" %}">
 
@@ -14,7 +15,7 @@
 	.item-row.selected { background: #fff; color: #333; border-color: #fc0;}
 	.code.label { font-size: 14px; height: 25px;}
 
-	.tweet-list { margin-top: 50px; font-size: 16px;}
+	.tweet-list { font-size: 16px;}
 
 	.code-list-primary li, .code-list-secondary li { display: inline-block; margin-left: 10px;}
 	.code-list-primary, .code-list-secondary {  line-height: 35px; height: 35px; }
@@ -56,6 +57,10 @@
 
 
 	#myModal2.modal-dialog { width: 1280px; }
+
+	[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak { display: none !important; }
+
+	#loading-indicator h1 { text-align: center; }
 	</style>
 	<script>
 		window.dataset_id = {{dataset_id}};
@@ -67,14 +72,14 @@
 	<header class="fixed drop-shadow">
 		<div class="container">
 			<div class="row">
-				<div class="code-navbar col-md-8" ng-controller="TweetCodeNavBar" ng-include="'tpl-code-button.html'">
+				<div class="code-navbar col-md-8 ng-cloak" ng-controller="TweetCodeNavBar" ng-include="'tpl-code-button.html'">
 				</div>
 				{% verbatim %}
 				<div class="help pull-right">
 					<a href="#" class="btn btn-default" data-toggle="modal" data-target="#myModal">Help</a>
 				</div>				
 				<div class="selection-status pull-right">
-					<span class="ng-hide" ng-show="tweets.length > 0">Tweet {{selected+1}} of {{tweets.length}}</span>
+					<span class="ng-hide ng-cloak" ng-show="tweets.length > 0">Tweet {{selected+1}} of {{tweets.length}}</span>
 				</div>
 				{% endverbatim %}
 			</div>
@@ -84,8 +89,22 @@
 	<div class="container" id="main-content">
 
 		<div class="content" >
-			
 
+			<div id="loading-indicator" ng-hide="tweets && tweets.length > 0">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="spinner"></div>
+					</div>
+				</div>
+				
+				<div class="row">
+					<div class="col-md-12">
+						<div>
+							<h1>Loading...</h1>
+						</div>
+					</div>
+				</div>
+			</div>
 
 			<ul class="styleless tweet-list ng-hide ng-cloak" ng-show="tweets && tweets.length > 0" >
 				{% verbatim %}
@@ -94,6 +113,7 @@
 				{% endverbatim %}
 				<li class="row item-row next-row" >
 					<a class="btn btn-primary pull-right" href="{{next}}" ng-class="{'disabled': incomplete() }">Submit</a>
+					<span class="pull-right" style="margin-right:25px;" ng-hide="{{incomplete}}">Have you looked at all the tweets?</span>
 				</li>
 			</ul>
 			<div ng-switch="tweets && tweets.length > 0">
@@ -127,11 +147,7 @@
 	      </div>
 	      <div class="modal-body">
 	      	<div class="container-fluid">
-		      	{% if page == 0 and condition < 2 %}
-		        	{% include "instructions.html" %}
-		        {% else %}
-		        	{% include "instructions_1.html" %}
-		        {% endif %}
+	      		{% include help %}
 		    </div>
 	      </div>
 	      <div class="modal-footer">
@@ -179,14 +195,21 @@
 {% endverbatim %}
 
 <script src="{% static "bower_components/jquery/dist/jquery.min.js" %}"></script>
-<script src="{% static "bower_components/angular/angular.js" %}"></script>
-<script src="{% static "bower_components/angular-route/angular-route.js" %}"></script>
-<script src="{% static "bower_components/angular-cookies/angular-cookies.js" %}"></script>
+<script src="{% static "bower_components/spin.js/spin.js" %}"></script>
+<script src="{% static "bower_components/spin.js/jquery.spin.js" %}"></script>
+<script src="{% static "bower_components/angular/angular.min.js" %}"></script>
+<script src="{% static "bower_components/angular-route/angular-route.min.js" %}"></script>
+<script src="{% static "bower_components/angular-cookies/angular-cookies.min.js" %}"></script>
 <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
 <script src="{% static "js/controllers.js" %}"></script>
 <script src="{% static "js/services.js" %}"></script>
 <script src="{% static "js/main.js" %}"></script>
-<script></script>
+
+<script>
+	(function($,Spinner){
+		$(".spinner").spin();
+	})(jQuery,Spinner);
+</script>
 
 </body>
 </html>

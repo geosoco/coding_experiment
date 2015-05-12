@@ -3,10 +3,12 @@
 <!DOCTYPE html>
 <html {% block html_attrs %}{% endblock %}>
 <head>
+	<meta name="twitter:dnt" content="on">
 	<link rel="stylesheet" type="text/css" href="{% static "bower_components/bootstrap/dist/css/bootstrap.css" %}">
 	<link rel="stylesheet" type="text/css" href="{% static "css/main.css" %}">
 	{% block additional_style_includes %}
 	{% endblock %}
+	{% block head_includes %}{% endblock %}
 	<style>
 	{% block head_style %}{% endblock %}
 	</style>
@@ -27,6 +29,8 @@
 {% block core_script_includes %}
 <script src="{% static "bower_components/jquery/dist/jquery.min.js" %}"></script>
 <script src="{% static "bower_components/bootstrap/dist/js/bootstrap.min.js" %}"></script>
+<script src="{% static "bower_components/spin.js/spin.js" %}"></script>
+<script src="{% static "bower_components/spin.js/jquery.spin.js" %}"></script>
 {% endblock %}
 
 {% block script_includes %}

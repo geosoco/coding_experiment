@@ -2,8 +2,8 @@
 {% load staticfiles %}
 
 {% block head_style %}
-	body { background: #abc; }
-	.content { background: #fff; color: #333; margin: 20px; padding: 40px; border-radius: 8px;}
+	body { background: #d8e0e8; }
+	.content { background: #fff; color: #333; margin: 20px; padding: 40px; border-radius: 3px; border: 1px solid #ccc;}
 	form { margin-top: 50px;}
 {% endblock %}
 
@@ -23,33 +23,209 @@
 								<li>Internet Explorer 10+</li>
 							</ul>
 						</li>
+						<li><strong>Cookies and Javascript Enabled</strong></li>
+						<li><p><strong>Disable Ad blocking and privacy software</strong></p><p>This experiment requires twitter scripts to be enabled, and some ad blocking programs prevent this from working. Read more about our information collection policy below</p>
 					</ul>
 
 					<h2>Purpose</h2>
 
-					<p>The purpose of this experiment is to explore methods for improving labelling experiences and the quality of those labels. You will be asked to label 45 tweets from a recent event (The &quot;Sydney Siege&quot;). This should take about 15 minutes. </p>
+					<p>The purpose of this experiment is to explore methods for improving labelling experiences and the quality of those labels. You will be asked to label 45 tweets from a recent event (The &quot;Sydney Siege&quot;). This should take about 20-25 minutes. If your performance is good enough, you will be given the option to label an additional 45 for a bonus.</p>
 					<p>All of the tweets are publicly available as of the time the experiment was posted. </p>
+
+					<h2>Collected Information</h2>
+					<p>We collect two types of information. The first is information about your web browser and your operating system, and it is used to diagnose possible problems with the application or possible causes for biased data. This information is available to every website you visit and we do not use it to identify you. By clicking the "I Agree" button below, this information will be sent to our server. It includes your webbrowser name (Chrome, IE, FireFox, Safari, etc), the vendor (Microsoft, Google, Apple, Mozilla), the platform (Windows, MacOS X, etc), your selected language, your screen resolution. </p>
+					<p>We additionally have two <strong>completely optional</strong> surveys. In these, we collect basic demographic information which helps us understand the users who take this survey and identify possible causes for bias. We also collect general information about this study, including how your opinions about this task. <strong>Your answers on both of these surveys, or refusal to answer, will not affect your payment in anyway.</strong></p>
 				</div>
 			</div>
 
+			<div class="row" style="margin-top: 20px;">
+				This is the information being collected.
+				<ul>
+					<li>Web browser (User Agent): <span id="ua"></span></li>
+					<li>Web Browser Vendor: <span id="vendor"></span></li>
+					<li>Platform / OS: <span id="platform"></span></li>
+					<li>Language: <span id="lang"></span></li>
+					<li>Browser resolution: <span id="width"></span> x <span id="height"></span></li>
+				</ul>
+			</div>
+
+			<div class="row">
+				<p>By pressing the &quot;I Agree&quot; button below, you consent participating in this study and for the information listed above to be sent to our servers.</p>
+			</div>
+
+			<!-- Requirement Checks -->
+			<div id="req_check">
+				<div class="row req" id="req-header">
+					<h3>Verifying Requirments...</h3>
+				</div>
+				<div class="row req" id="req-js">
+					<div class="col-md-12">
+						<p>Javascript Enabled:
+							<span class="result">
+								<noscript><span class="fail">Failed</span></noscript>
+							</span>
+						</p>
+						<noscript>
+							<div class="alert alert-danger" role="alert">
+								<h3>Javascript is disabled.</h3>
+								<p>You must enable Javascript before you are able to proceed.</p>
+								<p>Once you have done this, refresh this page in order to continue other tests.</p>
+							</div>
+						</noscript>
+					</div>
+				</div>
+
+				<div class="row req" id="req-cookies">
+					<div class="col-md-12">
+						<p>Cookies Enabled: 
+							<span class="result">
+								<span class="req-checking hidden"><span class="spinner"></span> Checking... </span>
+								<noscript><span class="fail">Failed</span> <span>(This test requires JavaScript)</span></noscript>
+							</span>
+						</p>
+						<div class="alert alert-danger hidden" role="alert">
+							<h3>Cookies are disabled.</h3>
+							<p>You must enable cookies before you can continue.</p>
+							<p>Refresh your browser after you have enabled cookies.</p>
+						</div>
+					</div>
+				</div>	
+
+				<div class="row req" id="req-twitter">
+					<div class="col-md-12">
+						<p>Twitter Scripts Enabled: 
+							<span class="result">
+								<span class="req-checking hidden"><span class="spinner"></span> Checking...</span>
+								<noscript><span class="fail">Failed</span> <span>(This test requires JavaScript)</span></noscript>
+							</span>
+						</p>
+						<div id="alert-no-twitter" class="alert alert-danger hidden" role="alert">
+							<h3>Twitter Script is disabled.</h3>
+							<p>Do you have an ad blocker or privacy extension installed? You need to disable it for this site.</p>
+							<p>This task requires scripts to be loaded from Twitter. If you are running an privacy or adblock extension, you need to disable blocking for this site or allow Twitter's scripts to run. To help protect your privacy, our pages include code telling Twitter not to track you on this site. The script is only used to render content according to Twitter's rules.</p>
+							<p>After you've disabled this, refresh the page to make sure it's disabled.</p>
+						</div>
+
+					</div>
+				</div>		
+			</div>
+
+			<!-- Agree -->
 			<div class="row">
 				<form action="." method="post" class="form">
-					{% csrf_token %}
-					<input type="hidden" value="" name="browser_info">
-					<button type="submit" class="btn btn-primary">Proceed</button>
+					<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+					<input type="hidden" value="" name="browser_info">		
+					<div id="submit-container">
+						<div class="req-testing">
+							<h4>Waiting for Twitter script to load...</h4>
+							<p><span class="spinner"></span>(waiting <span id="tw-wait"></span> more seconds)</p>
+						</div>
+						<div class="req-error hidden">
+							<div class="alert alert-danger" role="alert">
+								<p><strong>Requirements Failed</strong></p>
+								<p>Your browser does not meet the requirements to take this experiment.</p>
+								<p>The requirements section (above) will show you which failed. Make sure you have cookies and JavaScript enabled. Also make sure to disable all ad-blocking and privacy extensions for this site.</p>
+							</div>
+						</div>
+					</div>
 				</form>
 			</div>
 
-			<div class="row">
-				<pre>
-					{{browser_info}}
-				</pre>
-			</div>
+{% endblock %}
+
+{% block script_includes %}
+	<script src="{% static "js/req-check.js" %}"></script>
 {% endblock %}
 
 {% block final_script %}
+
+var success_html = "<span class='success'><span class='glyphicon glyphicon-ok'></span> Success!</span>",
+	failure_html = "<span class='fail'><span class='glyphicon glyphicon-remove'></span> Failed.</span>";
+
+
+function updateStatus(parent_id, value) {
+	var text = failure_html;
+	if(value === true) {
+		text = success_html;
+		$(parent_id).find(".alert").addClass("hidden");
+	} else if(value === false ) {
+		$(parent_id).find(".alert").removeClass("hidden");
+	}
+
+	// don't update text if it's null
+	if(value !== null) {
+		// set the text
+		$(parent_id).find(".result").html(text);	
+	}
+
+}
+
+function updatePage(rq) {
+	updateStatus("#req-cookies", rq.cookieEnabled);
+	updateStatus("#req-twitter", rq.twitterEnabled);
+}
+
+function onReqCheckSuccess(rq) {
+	updatePage(rq);
+	show_submit();
+}
+
+function onReqCookiesFailed(rq) {
+	updatePage(rq);
+	show_req_error();
+}
+
+function onReqTwitterFailed(rq) {
+	updatePage(rq);
+	show_req_error();
+}
+
+
+function onReqUpdateTwitterStatus(rq, d) {
+	updatePage(rq);
+	$("#tw-wait").text(d);
+}
+
+(function(reqcheck){
+
+
+	var rq = new reqcheck.ReqCheck(
+		onReqCheckSuccess,
+		onReqCookiesFailed,
+		onReqTwitterFailed,
+		onReqUpdateTwitterStatus
+	)
+
+	$("#req-js .result").html(success_html);
+
+})(RequirementCheck);
+
+
+function show_req_error() {
+	$(".req-error").removeClass("hidden");
+	$(".req-testing").addClass("hidden");
+}
+
+function show_submit() {
+	$("#req_check").addClass("hidden");
+	$(".req-testing").addClass("hidden");
+	$("#submit-container").html('<button type="submit" class="btn btn-primary">I Agree</button>');
+}
+
 (function(){
+
+	$(".req-checking").removeClass("hidden");
+	$(".spinner").spin('tiny');		
+
 	
+	$("#ua").text(navigator.userAgent);
+	$("#vendor").text(navigator.vendor);
+	$("#platform").text(navigator.platform);
+	$("#lang").text(navigator.language);
+	$("#width").text($(window).width());
+	$("#height").text($(window).height());
+
+
 	
 	$("button[type='submit']").on("click", function(ev){
 		var $f = $('form'),
@@ -70,6 +246,7 @@
 
 		$f.append($i);
 
+
 		ev.preventDefault();
 		$f.submit();
 	});
@@ -77,3 +254,5 @@
 })();
 
 {% endblock %}
+
+
