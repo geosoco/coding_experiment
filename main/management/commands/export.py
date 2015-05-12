@@ -3,6 +3,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from main.models import *
 import simplejson as json
 
+from pprint import pprint
+
 class Command(BaseCommand):
 	help = "import a series of oembed tweets from a json file"
 
@@ -69,25 +71,34 @@ class Command(BaseCommand):
 
 		assignment_user_dict = {a.id: a.user_id for a in assignments}
 		assignment_ids = sorted(assignment_user_dict.keys())
+		print "assignment ids: ", repr(assignment_ids)
 		codeinstances = CodeInstance.objects.filter(assignment__in=assignment_ids, deleted=False, code__in=export_code_ids).order_by('date')
 
 
-		inst_dict = dict.fromkeys(assignment_ids, {})
+		inst_dict = {a:{} for a in assignment_ids}
 
 		for ci in codeinstances:
 			as_id = ci.assignment_id
 			c_id = ci.code_id
 			t_id = ci.tweet_id
 
+			#print as_id, t_id, c_id
 			inst_dict[as_id][t_id] = c_id
+
+			#pprint(inst_dict)
 
 
 		tweets = Tweet.objects.filter(dataset=dataset).order_by('id')
 		tw_ids = sorted([t.id for t in tweets])
 
+		#print "inst_dict: ", repr(inst_dict)
+
 		for a in assignment_ids:
 			code_list = []
 			tweet_code_dict = inst_dict[a]
+
+			#print "assignment: ", a
+			#print repr(tweet_code_dict)
 
 			# step through tweets
 			for tid in tw_ids:
