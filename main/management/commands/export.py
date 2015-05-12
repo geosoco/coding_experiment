@@ -87,7 +87,7 @@ class Command(BaseCommand):
 
 		for a in assignment_ids:
 			code_list = []
-			tweet_code_dict = inst_dict[as_id]
+			tweet_code_dict = inst_dict[a]
 
 			# step through tweets
 			for tid in tw_ids:
