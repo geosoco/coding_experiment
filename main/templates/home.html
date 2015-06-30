@@ -1,0 +1,31 @@
+{% extends "static_base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+  <h1>Temporary Coding Tool Home!</h1>
+
+  {% if user.is_authenticated %}
+    <p>Hello, {{user}}</p>
+  {% else %}
+    <p>It's apparently a secret to everybody? (You shouldn't be here)</p>
+  {% endif %}
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Your assignments</h3>
+  </div>
+  <div class="panel-body">
+    {% if view.assignments.all.count > 0 %}
+    <ul>
+      {% for a in view.assignments.all %}
+        <li><a href="{% url 'user_coding' a.id %}">{{a.condition.name}}</a></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>You have no assignments</p>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
