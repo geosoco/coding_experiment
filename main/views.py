@@ -1,11 +1,15 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required, permission_required
 from django.template.context_processors import csrf
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseNotFound,  HttpResponseBadRequest
 from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.views.generic.edit import CreateView
+from django.views.generic import TemplateView
+from django.views.generic.base import RedirectView
+
 #from django.template.context_processors import csrf
 from models import *
 import string
@@ -15,6 +19,15 @@ import time
 from forms import *
 from pprint import pprint
 
+
+
+class LoginRequiredMixin(object):
+    """A mixin that forces a login to view the CBTemplate."""
+    
+    @classmethod
+    def as_view(cls, **initkwargs):
+        view = super(LoginRequiredMixin, cls).as_view(**initkwargs)
+        return login_required(view)
 
 
 
@@ -125,7 +138,7 @@ def build_user_cookie(request, user_id = None, username = None, condition = None
 			assignment = Assignment.objects.get(user=request.user)
 			assignment_id = assignment.id
 			condition = assignment.condition.id
-			turkuser_id = request.user.turkuser.id
+			turkuser_id = request.user.turkuser.id if hasattr(request.user, 'turkuser') and request.user.turkuser is not None else None
 		else:
 			# try to grab from cookie
 			if user_id_str in request.session:
@@ -244,6 +257,7 @@ def create_user(request, cnd=None):
 
 
 # Create your views here.
+
 
 def home(request):
 	return render(request, "base.html")
@@ -569,3 +583,34 @@ def bonus_check(request):
 	c['no'] = condition_map["bonus_check"][str(condition)]["no"]
 
 	return render(request, "bonus_check.html", c)
+
+
+class HomeView(LoginRequiredMixin, TemplateView):
+	template_name = "home.html"
+
+	def assignments(self):
+		assignments = Assignment.objects.filter(user=self.request.user)
+		print "in assignments",assignments
+		return assignments
+
+
+class UserCodingView(LoginRequiredMixin, TemplateView):
+	template_name = "base.html"
+
+
+	def get_context_data(self, **kwargs):
+		context = super(UserCodingView, self).get_context_data(**kwargs)
+		context["next"] = reverse('user_home')
+		c = build_user_cookie(self.request)
+
+		condition_id = int(c["condition"])
+		condition = Condition.objects.get(pk=condition_id)
+		context["dataset_id"] =  condition.dataset.first().id
+
+		
+
+		context.update(c)
+
+
+		return context
+

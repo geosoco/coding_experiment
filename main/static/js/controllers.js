@@ -38,7 +38,7 @@ tweetCodingApp.controller('TweetListCtrl',
 
 
 
-	var user_promise = $http.get('/api/turkuser/current/.json');
+	var user_promise = $http.get('/api/user/current/.json');
 	var codes_promise = $http.get('/api/codescheme/.json');
 	//var tweets_promise = $http.get('/api/tweet/.json');
 	var dataset_promise = $http.get('/api/dataset/' + dataset_id + '/.json');
@@ -85,7 +85,7 @@ tweetCodingApp.controller('TweetListCtrl',
 
 
 			$scope.$broadcast("data:loaded");
-			twttr.widgets.load();
+			//twttr.widgets.load();
 
 		});
 
@@ -406,7 +406,7 @@ tweetCodingApp.controller('TweetListCtrl',
 tweetCodingApp.controller('TweetCodeNavBar', ['$scope', '$document', 
 function($scope, $document) {
 	//$scope.
-
+/*
 	$scope.$on('data:loaded', function(event, args) {
 		console.log('data:loaded');
 		console.dir(event);
@@ -434,4 +434,5 @@ function($scope, $document) {
 		//twttr.widgets.load();
 		//$document[0].body.innerHTML += "<script async src=\"//platform.twitter.com/widgets.js\" charset=\"utf-8\"></script>";
 	});
+*/
 }]);
