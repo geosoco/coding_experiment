@@ -147,7 +147,9 @@
 	      </div>
 	      <div class="modal-body">
 	      	<div class="container-fluid">
-	      		{% include help %}
+	      		{% if help %}
+	      			{% include help %}
+	      		{% endif %}
 		    </div>
 	      </div>
 	      <div class="modal-footer">

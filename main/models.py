@@ -200,3 +200,5 @@ class UserValidatedInstance(models.Model):
 	tweet_2 = models.ForeignKey(Tweet, blank=True, null=True, related_name='%(class)s_tweet_2')
 	tweet_1_codes = models.TextField(blank=True, null=True)
 	tweet_2_codes = models.TextField(blank=True, null=True)
+
+

@@ -7,6 +7,19 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated
 
 
+class UserViewSet(viewsets.ModelViewSet):
+	"""
+	"""
+	queryset = User.objects.all()
+	serializer_class = UserSerializer
+	permission_classes = (IsAuthenticated,)
+
+	def dispatch(self, request, *args, **kwargs):
+		if kwargs.get('pk') == 'current' and request.user:
+			kwargs['pk'] = request.user.pk
+
+		return super(UserViewSet, self).dispatch(request, *args, **kwargs)
+
 
 class TurkUserViewSet(viewsets.ModelViewSet):
 	"""
@@ -117,6 +130,7 @@ class CodeInstanceViewSet(viewsets.ModelViewSet):
 		assignment = None
 		try:
 			assignment = Assignment.objects.get(user=self.request.user)
+			print "assignment: ", assignment
 		except ObjectDoesNotExist:
 			pass
 		if assignment is not None:
@@ -140,11 +154,12 @@ class CodeInstanceViewSet(viewsets.ModelViewSet):
 		serializer.save()
 
 	def dispatch(self, request, *args, **kwargs):
-		print "dispatch"
+		print "dispatch-->"
 		print repr(kwargs)
-		print "user id:", request.user.turkuser.pk
+		#print "user id:", request.user.turkuser.pk
 		if kwargs.get('pk') == 'current' and request.user:
-			kwargs['pk'] = request.user.turkuser.pk
+		#	kwargs['pk'] = request.user.turkuser.pk
+			kwargs['pk'] = request.user.id
 			
 
 		return super(CodeInstanceViewSet, self).dispatch(request, *args, **kwargs)
