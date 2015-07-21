@@ -135,8 +135,11 @@ def build_user_cookie(request, user_id = None, username = None, condition = None
 			# grab from username
 			user_id = request.user.id
 			username = request.user.username
-			assignment = Assignment.objects.get(user=request.user)
-			assignment_id = assignment.id
+			if assignment_id is not None:
+				assignment = Assignment.objects.get(user=request.user, id=assignment_id)
+			else:
+				assignment = Assignment.objects.get(user=request.user)
+				assignment_id = assignment.id
 			condition = assignment.condition.id
 			turkuser_id = request.user.turkuser.id if hasattr(request.user, 'turkuser') and request.user.turkuser is not None else None
 		else:
@@ -601,7 +604,8 @@ class UserCodingView(LoginRequiredMixin, TemplateView):
 	def get_context_data(self, **kwargs):
 		context = super(UserCodingView, self).get_context_data(**kwargs)
 		context["next"] = reverse('user_home')
-		c = build_user_cookie(self.request)
+		print "assignment_id: ", kwargs["assignment_id"]
+		c = build_user_cookie(self.request, assignment_id=kwargs["assignment_id"])
 
 		condition_id = int(c["condition"])
 		condition = Condition.objects.get(pk=condition_id)
@@ -613,4 +617,27 @@ class UserCodingView(LoginRequiredMixin, TemplateView):
 
 
 		return context
+
+
+class UserCodingView2(LoginRequiredMixin, TemplateView):
+	template_name = "coding_tool.html"
+
+
+	def get_context_data(self, **kwargs):
+		context = super(UserCodingView2, self).get_context_data(**kwargs)
+		context["next"] = reverse('user_home')
+		print "assignment_id: ", kwargs["assignment_id"]
+		c = build_user_cookie(self.request, assignment_id=kwargs["assignment_id"])
+
+		condition_id = int(c["condition"])
+		condition = Condition.objects.get(pk=condition_id)
+		context["dataset_id"] =  condition.dataset.first().id
+
+		
+
+		context.update(c)
+
+
+		return context
+
 

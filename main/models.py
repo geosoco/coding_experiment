@@ -25,6 +25,7 @@ class TurkUser(models.Model):
 class Dataset(models.Model):
 
 	name = models.CharField(max_length=256)
+	rumor = models.CharField(max_length=64, blank=True, null=True)
 	description = models.TextField(blank=True, null=True)
 
 	def __str__(self):
@@ -63,6 +64,7 @@ class Code(models.Model):
 
 class Tweet(models.Model):
 	id = models.AutoField(primary_key=True)
+	original_id = models.IntegerField(default=None, blank=True, null=True)
 	dataset = models.ForeignKey(Dataset)
 	tweet_id = models.BigIntegerField(default=None)
 	text = models.CharField(max_length=1024)

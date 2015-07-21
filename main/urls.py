@@ -23,7 +23,7 @@ urlpatterns = patterns('',
     url(r'^pause/$', 'main.views.bonus_check', name='bonus_check'),
 
     url(r'^$', HomeView.as_view(), name='user_home'),
-    url(r'^coding2/(?P<assignment_id>\d+)/$', UserCodingView.as_view(), name='user_coding'),
+    url(r'^coding2/(?P<assignment_id>\d+)/$', UserCodingView2.as_view(), name='user_coding'),
 
 
     url(r'^login/$', 'django.contrib.auth.views.login'),

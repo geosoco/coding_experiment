@@ -1,7 +1,7 @@
 var tweetCodingApp = angular.module('tweetCodingApp', ['ngCookies']);
 
 tweetCodingApp.run(['$anchorScroll', function($anchorScroll) {
-  $anchorScroll.yOffset = 60;   // always scroll by 50 extra pixels
+  $anchorScroll.yOffset = 100;   // always scroll by 50 extra pixels
 }])
 
 tweetCodingApp.run(['$http', '$cookies', function($http, $cookies) {
@@ -29,6 +29,7 @@ tweetCodingApp.controller('TweetListCtrl',
 
 	$scope.page = angular.element("body").data("page");
 	console.log("page: " + $scope.page);
+	$scope.assignment_id = angular.element("body").data("assignment");
 
     /*
      *
@@ -39,11 +40,11 @@ tweetCodingApp.controller('TweetListCtrl',
 
 
 	var user_promise = $http.get('/api/user/current/.json');
-	var codes_promise = $http.get('/api/codescheme/.json');
+	var codes_promise = $http.get('/api/codescheme/.json', {params: {assignment: $scope.assignment_id}});
 	//var tweets_promise = $http.get('/api/tweet/.json');
 	var dataset_promise = $http.get('/api/dataset/' + dataset_id + '/.json');
-	var instance_promise = $http.get('/api/codeinstance/.json');
-	var assignment_promise = $http.get('/api/assignment/.json');
+	var instance_promise = $http.get('/api/codeinstance/.json', {params: {assignment: $scope.assignment_id}});
+	var assignment_promise = $http.get('/api/assignment/' + $scope.assignment_id + '/.json');
 
 	//var instances_promise = $http.get('/api/code_instance/.json')
 
@@ -72,12 +73,14 @@ tweetCodingApp.controller('TweetListCtrl',
 			$scope.user = data[0].data;
 			$scope.tweets = tweets;
 			$scope.code_schemes = data[1].data;
-			$scope.assignment = data[4].data[0];
+			$scope.assignment = data[4].data;
 
 			for(var i = 0; i < $scope.code_schemes.length; i++) {
 				var cs = $scope.code_schemes[i];
 				for(var j = 0; j < cs.code_set.length; j++) {
 					var code = cs.code_set[j];
+
+					code.scheme_idx = i;
 
 					$scope.codes.push(code);
 				}
@@ -152,15 +155,21 @@ tweetCodingApp.controller('TweetListCtrl',
 	$scope.codeFilterBySchema0 = function(code_instance) {
 		if(code_instance.code != undefined && $scope.codes.length > 0) {
 			var code = $scope.codeLookupById(code_instance.code);
-			return code.scheme.id === 1;
+			return code.scheme_idx === 0 || code.scheme_idx == 2;
 		}
 	}
 	$scope.codeFilterBySchema1 = function(code_instance) {
 		if(code_instance.code != undefined && $scope.codes.length > 0) {
 			var code = $scope.codeLookupById(code_instance.code);
-			return code.scheme.id === 2;
+			return code.scheme_idx === 1;
 		}
 	}
+	$scope.codeFilterBySchema2 = function(code_instance) {
+		if(code_instance.code != undefined && $scope.codes.length > 0) {
+			var code = $scope.codeLookupById(code_instance.code);
+			return code.scheme_idx === 2;
+		}
+	}	
 
 	$scope.incomplete = function() {
 		var count = 0;

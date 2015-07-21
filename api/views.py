@@ -64,13 +64,10 @@ class TweetViewSet(viewsets.ModelViewSet):
 class AssignmentViewSet(viewsets.ModelViewSet):
 	"""
 	"""
+	queryset = Assignment.objects.all()
 	serializer_class = AssignmentSerializer
 	authentication_classes = (SessionAuthentication, BasicAuthentication)
 	permission_classes = (IsAuthenticated,)
-
-
-	def get_queryset(self):
-		return Assignment.objects.filter(user=self.request.user)
 
 
 class CodeSchemeViewSet(viewsets.ModelViewSet):
@@ -82,7 +79,12 @@ class CodeSchemeViewSet(viewsets.ModelViewSet):
 	depth=2
 
 	def get_queryset(self):
-		assignment = Assignment.objects.get(user=self.request.user.id)
+		assignment_id = self.request.query_params.get('assignment', None)
+
+		if not assignment_id:
+			assignment = Assignment.objects.get(user=self.request.user.id)
+		else:
+			assignment = Assignment.objects.get(user=self.request.user.id, id=assignment_id)
 		print assignment.condition
 		print assignment.condition.id
 		print assignment.condition.code_schemes.all().count()
@@ -100,7 +102,13 @@ class CodeViewSet(viewsets.ModelViewSet):
 	permission_classes = (IsAuthenticated,)
 
 	def get_queryset(self):
-		assignment = Assignment.objects.get(user=self.request.user.id)
+		assignment_id = self.request.query_params.get('assignment', None)
+
+		if not assignment_id:
+			assignment = Assignment.objects.get(user=self.request.user.id)
+		else:
+			assignment = Assignment.objects.get(user=self.request.user.id, id=assignment_id)
+
 		print assignment.condition
 		print assignment.condition.id
 		print assignment.condition.code_schemes.all().count()
@@ -128,11 +136,21 @@ class CodeInstanceViewSet(viewsets.ModelViewSet):
 		print "--", repr(self.request.user)
 		print self.request.auth
 		assignment = None
-		try:
-			assignment = Assignment.objects.get(user=self.request.user)
-			print "assignment: ", assignment
-		except ObjectDoesNotExist:
-			pass
+
+		pk = self.kwargs.get('pk')
+
+		if not pk:
+			try:
+				assignment_id = self.request.query_params.get('assignment', None)
+
+				if not assignment_id:
+					assignment = Assignment.objects.get(user=self.request.user.id)
+				else:
+					assignment = Assignment.objects.get(user=self.request.user.id, id=assignment_id)
+				print "assignment: ", assignment
+			except Assignment.DoesNotExist:
+				pass
+
 		if assignment is not None:
 			#print "getting queryset - %d %s"%(self.request.user.turkuser.id, self.request.user.username)
 			return CodeInstance.objects.filter(assignment=assignment)
