@@ -117,7 +117,8 @@ class Command(BaseCommand):
 		dataset_name = options.get('dataset_name', None)
 		if dataset_name is None:
 			dataset_basename = os.path.basename(filename)
-			dataset_name = os.path.splitext(dataset_basename)[0]
+			dataset_filename = os.path.splitext(dataset_basename)[0]
+			dataset_name =  "%s_%s"%(dataset_filename, username)
 
 		ds, ds_created = Dataset.objects.get_or_create(
 			name=dataset_name, 
