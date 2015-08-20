@@ -164,10 +164,11 @@ class Command(BaseCommand):
                         instances = ['' for _ in export_code_ids]
 
 
-                    row_text = "%s,%s,%s,%s\n" % (
+                    row_text = "%s,%s,\"%s\",%s\n" % (
                         tweet_map[tid].tweet_id,
-                        tweet_map[tid].text,
-                        rumor, ','.join(instances))
+                        rumor,
+                        tweet_map[tid].text.replace("\"", "\\\""),
+                        ','.join(instances))
                     f.write(row_text)
                     #code_list.append(str(tweet_code_dict.get(tid, 0)))
 
