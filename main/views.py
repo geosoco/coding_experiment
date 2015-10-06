@@ -217,7 +217,7 @@ def create_user(request, cnd=None):
 
 	if cnd is None:
 		#rnd = datetime.datetime.now().second % (all_conditions.count()+1)
-		rnd = random.randint(0,10*(all_conditions.count()-1)) // 10
+		rnd = int(random.uniform(0, all_conditions.count()))
 		print "Assinging user to ", rnd
 		condition = all_conditions[rnd]
 	else:
