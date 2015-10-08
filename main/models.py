@@ -15,6 +15,9 @@ class TurkUser(models.Model):
 
     turker_id = models.CharField(max_length=32, blank=True, null=True)
 
+    exclude = models.BooleanField(default=False)
+    exclusion_reason = models.CharField(max_length=128, blank=True, null=True)
+
     def __str__(self):
         return str(self.id)
 
