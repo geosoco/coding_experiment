@@ -174,9 +174,9 @@ class Command(BaseCommand):
 
         for hit in hits:
             print "getting assignments for hit (", hit.HITId, ")"
-            assignments = mtc.get_assignments(hit.HITId, status="Rejected")
-            if len(assignments) == 0:
-                mtc.
+            assignments = mtc.get_assignments(hit.HITId, status="Submitted")
+#            if len(assignments) == 0:
+#                mtc.
             for assignment in assignments:
                 print "\n##################\n"
                 print assignment.__dict__
@@ -184,6 +184,8 @@ class Command(BaseCommand):
                 worker_id = assignment.WorkerId
                 assign_id = assignment.AssignmentId
                 survey_code = assignment.answers[0][0].fields[0]
+                assignment_status = assignment.AssignmentStatus
+
 
                 # fix survey code
                 survey_code = survey_code.strip()
@@ -222,7 +224,10 @@ class Command(BaseCommand):
                 handle = handle.lower()
 
                 if handle == 'y':
-                    mtc.approve_assignment(assign_id)
+                    if assignment_status == "Rejected":
+                        mtc.approve_rejected_assignment(assign_id)
+                    else:
+                        mtc.approve_assignment(assign_id)
                     if u["datasets"] == 2:
                         print "++ bonus"
                         mtc.grant_bonus(
