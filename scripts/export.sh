@@ -10,7 +10,8 @@ do_export() {
     python manage.py export --codescheme $5 $2 $2_$3 > $OUTDIR/$filename
 }
 
-if [$# -ne 1]:
+if [$# -ne 1]
+then
     echo "usage: `basename $0` <outdir>"
     exit 1
 fi
