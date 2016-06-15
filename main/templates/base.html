@@ -123,13 +123,15 @@
 						(function(twttr) {
 							console.log("running twttr")
 							console.dir(twttr);
-							twttr.events.bind(
-							  'rendered',
-							  function (event) {
-							    console.log("Created widget", event.target.id);
-							  }
-							);
-							//twttr.widgets.load();
+                            if(twtter) {
+    							twttr.events.bind(
+	    						  'rendered',
+		    					  function (event) {
+			    				    console.log("Created widget", event.target.id);
+				    			  }
+					    		);
+							    twttr.widgets.load();
+                            }
 						})();
 					</script>
 				</div>
